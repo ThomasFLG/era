@@ -16,7 +16,8 @@ async function test (){
         const newKey = await LimeSurveyAPI.isCorrect(sessionKey);
         console.log("La clée vérifiée est : ",newKey);
 
-        const envoi = await LimeSurveyAPI.sendEmail(newKey,process.env.LIME_URL,surveyId);
+        const formulaires = await LimeSurveyAPI.allSurvey(newKey,process.env.LIME_URL);
+        console.log("La liste des formulaires : ",formulaires);
 
     } catch (error) {
         console.error('Impossible de récupérer les données du sondage : ', error.message);

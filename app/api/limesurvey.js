@@ -1,7 +1,38 @@
 import axios from 'axios';
-import { start } from 'repl';
-import nodemailer from 'nodemailer';
 
+import dotenv from 'dotenv';
+dotenv.config(); //charge les variables du fichier .env
+
+ const url = process.env.LIME_URL;
+ const username = process.env.LIME_USERNAME;
+ const password = process.env.LIME_PASSWORD;
+
+ const test = await allSurvey(url,username,password);
+ console.log(test);
+
+export default async function handler(req, res) {
+    const { action } = req.query; // Récupère le paramètre "action" dans l'URL
+  
+    if (action === "getSessionKey") {
+        const sessionKey = await getSessionKey(url, username, password);
+        return res.json({ sessionKey });
+    } else if (action === "allSurvey") {
+        const surveys = await allSurvey(url);
+        return res.json({ message: surveys });
+    } else {
+        return res.status(400).json({ error: "Action inconnue" });
+    }
+  }
+
+  const handleError = (error) => {
+    if (error.response) {
+        console.error("Erreur HTTP : ", error.response.status, error.response.data);
+    } else if (error.request) {
+        console.error("Aucune réponse reçue du serveur : ", error.request);
+    } else {
+        console.error("Erreur de configuration : ", error.message);
+    }
+}
 
 /**
  * Fonction pour récupérer la session_key de LimeSurvey
@@ -76,7 +107,8 @@ async function isCorrect(sessionKey,url,utilisateur,motDePasse) {
  * @param {string} urlListSurvey - L'URL de l'API LimeSurvey pour la liste des sondages
  * @returns {Array} Liste des enquêtes avec leurs informations
  */
-async function allSurvey(sessionKey, url) {
+async function allSurvey(url) {
+    const sessionKey = await getSessionKey(url,username,password);
     try {
         const response = await axios.post(url,{
             jsonrpc: '2.0',
@@ -91,21 +123,12 @@ async function allSurvey(sessionKey, url) {
         });
         if (response.data.result) {
             console.log('Liste des enquêtes :', response.data.result);
+            return response.data.result;
         } else {
             console.error('Erreur API :',response.data.error);
         }
     } catch (error) {
-        if (error.response) {
-            // Erreur côté serveur, avec une réponse HTTP
-            console.error("Erreur HTTP :", error.response.status);
-            console.error("Détails :", error.response.data);
-        } else if (error.request) {
-            // Requête envoyée mais pas de réponse reçue
-            console.error("Aucune réponse du serveur :", error.request);
-        } else {
-            // Erreur lors de la configuration de la requête
-            console.error("Erreur de configuration :", error.message);
-        }
+        handleError(error);
     }
 }
 
@@ -193,7 +216,7 @@ async function getStartDate(sessionKey, url, surveyId) {
  * @param {date} newDate - La nouvelle date
  * @returns {boolean} Indique si la modification de la date a été faite
 **/
-async function setDateStart(sessionKey,url,idSurvey,newDate) {
+async function setStartDate(sessionKey,url,idSurvey,newDate) {
     try {
         const response = await axios.post(url, {
             jsonrpc: '2.0',
@@ -365,7 +388,4 @@ async function checkStartDate(sessionKey, url, surveyId) {
     }
 }
 
-
-
-
-export { getSessionKey, isCorrect, allSurvey, survey, setDateStart, getParticipants, getStartDate, sendEmail, activateSurvey};
+export {getSessionKey, isCorrect, survey, allSurvey, getStartDate, setStartDate, getParticipants, activateSurvey, sendEmail, checkStartDate};
