@@ -1,0 +1,20 @@
+erav2/
+├── src/
+│   ├── app/
+│   │   ├── page.tsx               # Page d'accueil (index)
+│   │   ├── layout.tsx             # Mise en page globale
+│   │   ├── globals.css            # Feuille de style globale
+│   │   ├── api/                   # Dossier pour les API
+│   │   │   └── limesurvey/        # Dossier spécifique à l'API LimeSurvey
+│   │   │       └── route.ts       # Route API pour récupérer le session_key
+│   ├── public/                    # Fichiers statiques (images, favicon, etc.)
+│   ├── utils/                     # Dossier pour les fonctions utilitaires
+│   │   └── limesurvey.ts          # Fonction utilitaire pour interagir avec LimeSurvey
+│   │   components/
+│   │   └── Header.txs
+│   │   └── Footer.txs 
+├── node_modules/                  # Dépendances Node.js
+├── .gitignore                     # Fichiers à ignorer dans Git
+├── next.config.js                 # Configuration de Next.js
+├── package.json                   # Dépendances et scripts de l'application
+└── tsconfig.json                  # Configuration TypeScript
