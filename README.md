@@ -20,6 +20,45 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Project Structure
+
+erav2/
+├── src/                      # ───────────── Main source directory─────────────
+│   ├── app/                  # ───────── Application-specific files and components ─────────────────
+│   │  ├── api/               # ── API-related files (defines API routes and endpoints) ────────
+│   │  │   ├── route.js       # API routes file (handling requests to server-side endpoints)
+│   │  ├── products/          # ── Product-related pages or components ───────────────────────────
+│   │  │   ├── [id].tsx       # Dynamic product page, used to display details based on the product ID
+│   │  ├── favicon.ico        # Favicon file for browser tab icon
+│   │  ├── globals.css        # Global CSS file for overall styling of the app
+│   │  ├── layout.tsx         # Layout file that defines the structure for the application pages
+│   │  ├── page.module.css    # Page-specific CSS module, scoped to the layout/page
+│   │  ├── page.tsx           # Main page component, often the homepage or root of the app
+│   ├── components/           # ── Reusable components used across various pages ─────────────────────
+│   │  ├── Footer.tsx         # Footer component for the bottom of the page
+│   │  ├── Header.tsx         # Header component, typically displayed at the top of the page
+│   │  ├── SurveyList.js      # Component for displaying a list of surveys
+│   ├── public/               # ── Static files and assets (images, icons, SVGs) ─────────────────────
+│   │  ├── file.svg           # SVG image (can be used for logos, icons, etc.)
+│   │  ├── globe.svg          # SVG file, potentially representing a globe icon
+│   │  ├── next.svg           # Next.js logo or SVG graphic
+│   │  ├── vercel.svg         # Vercel logo (for deployment/branding purposes)
+│   │  ├── window.svg         # SVG image for window icon or similar graphic
+│   ├── utils/                # ── Utility functions and helpers ─────────────────────────────────
+│   │  ├── hooks/             # Custom React hooks, encapsulating reusable logic
+│   │  ├── libs/              # Helper libraries for additional functionality (e.g., date manipulation, formatting)
+│   │  ├── services/          # ── Services for handling business logic or external interactions ──
+│   │  │   ├── limesurvey.js  # Service for working with LimeSurvey (e.g., data fetching, API calls)
+├── .env                      # ── Environment variables (API keys, secrets) ──────────────────────────
+├── esling.config.mjs         # ── ESLint configuration file for linting JavaScript/TypeScript ───
+├── next.env.d.ts             # ── TypeScript declaration for Next.js environment variables ───────
+├── package-lock.json         # ── Automatically generated, ensures consistent package installation ──
+├── package.json              # ── Project's metadata and npm dependencies ───────────────────────────
+├── README.md                 # ── Project documentation (guidelines, setup, etc.) ─────────────────────
+├── tsconfig.json             # ── TypeScript configuration, defines the compiler settings ────────
+├── tsconfig.tsbuildinfo      # ── TypeScript build info file for incremental builds ───────────────
+
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
