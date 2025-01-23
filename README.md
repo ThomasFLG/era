@@ -24,39 +24,40 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 
 - erav2/
   - src/                     # Main source directory
-    - app/                 # Application files & components
-      - api/              # API routes & endpoints
-        - route.js      # Handles API requests
-      - products/         # Product-related pages/components
-        - [id].tsx      # Product page (dynamic routing)
-      - favicon.ico       # Browser tab icon (favicon)
-      - globals.css       # Global styles
-      - layout.tsx        # App layout structure
-      - page.module.css   # Page-specific styles
-      - page.tsx          # Main page component
-    - components/          # Reusable components
-      - Footer.tsx        # Footer component
-      - Header.tsx        # Header component
-      - SurveyList.js     # Displays survey list
-    - public/              # Static assets (images, icons)
-      - file.svg          # Image/Icon (SVG)
-      - globe.svg         # Globe icon (SVG)
-      - next.svg          # Next.js logo (SVG)
-      - vercel.svg        # Vercel logo (SVG)
-      - window.svg        # Window icon (SVG)
-    - utils/               # Utility functions/helpers
-      - hooks/            # Custom React hooks
-      - libs/             # Helper libraries
-      - services/         # External services
-        - limesurvey.js # LimeSurvey integration
-  - .env                     # Environment variables (API keys)
-  - esling.config.mjs        # ESLint config (JS/TS linting)
-  - next.env.d.ts            # TypeScript declarations for environment
-  - package-lock.json        # Ensures consistent package installs
-  - package.json             # Project metadata & dependencies
-  - README.md                # Project documentation
-  - tsconfig.json            # TypeScript compiler settings
-  - tsconfig.tsbuildinfo     # TypeScript build info (for incremental builds)
+    - app/                 _# Application files & components_
+      - api/              _# API routes & endpoints_
+        - route.js      **# Handles API requests**
+      - products/         _# Product-related pages/components_
+        - [id].tsx      **# Product page (dynamic routing)**
+      - favicon.ico       _# Browser tab icon (favicon)_
+      - globals.css       _# Global styles_
+      - layout.tsx        _# App layout structure_
+      - page.module.css   _# Page-specific styles_
+      - page.tsx          _# Main page component_
+    - components/          _# Reusable components_
+      - Footer.tsx        **# Footer component**
+      - Header.tsx        **# Header component**
+      - SurveyList.js     **# Displays survey list**
+    - public/              _# Static assets (images, icons)_
+      - file.svg          _# Image/Icon (SVG)_
+      - globe.svg         _# Globe icon (SVG)_
+      - next.svg          _# Next.js logo (SVG)_
+      - vercel.svg        _# Vercel logo (SVG)_
+      - window.svg        _# Window icon (SVG)_
+    - utils/               _# Utility functions/helpers_
+      - hooks/            _# Custom React hooks_
+      - libs/             _# Helper libraries_
+      - services/         _# External services_
+        - limesurvey.js **# LimeSurvey integration**
+  - .env                     _# Environment variables (API keys)_
+  - esling.config.mjs        _# ESLint config (JS/TS linting)_
+  - next.env.d.ts            _# TypeScript declarations for environment_
+  - package-lock.json        _# Ensures consistent package installs_
+  - package.json             _# Project metadata & dependencies_
+  - README.md                _# Project documentation_
+  - tsconfig.json            _# TypeScript compiler settings_
+  - tsconfig.tsbuildinfo     _# TypeScript build info (for incremental builds)_
+
 
 
 
