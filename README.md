@@ -23,32 +23,33 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 ## Project Structure
 
 - erav2/
+    - public/              _# Static assets (images, icons)_
+        - file.svg          _# Image/Icon (SVG)_
+        - globe.svg         _# Globe icon (SVG)_
+        - next.svg          _# Next.js logo (SVG)_
+        - vercel.svg        _# Vercel logo (SVG)_
+        - window.svg        _# Window icon (SVG)_
   - src/                     # Main source directory
     - app/                 _# Application files & components_
-      - api/              _# API routes & endpoints_
-        - route.js      **# Handles API requests**
-      - products/         _# Product-related pages/components_
-        - [id].tsx      **# Product page (dynamic routing)**
-      - favicon.ico       _# Browser tab icon (favicon)_
-      - globals.css       _# Global styles_
-      - layout.tsx        _# App layout structure_
-      - page.module.css   _# Page-specific styles_
-      - page.tsx          _# Main page component_
-    - components/          _# Reusable components_
-      - Footer.tsx        **# Footer component**
-      - Header.tsx        **# Header component**
-      - SurveyList.js     **# Displays survey list**
-    - public/              _# Static assets (images, icons)_
-      - file.svg          _# Image/Icon (SVG)_
-      - globe.svg         _# Globe icon (SVG)_
-      - next.svg          _# Next.js logo (SVG)_
-      - vercel.svg        _# Vercel logo (SVG)_
-      - window.svg        _# Window icon (SVG)_
-    - utils/               _# Utility functions/helpers_
-      - hooks/            _# Custom React hooks_
-      - libs/             _# Helper libraries_
-      - services/         _# External services_
-        - limesurvey.js **# LimeSurvey integration**
+        - api/              _# API routes & endpoints_
+            - route.js      **# Handles API requests**
+        - products/         _# Product-related pages/components_
+            - [id].tsx      **# Product page (dynamic routing)**
+        - favicon.ico       _# Browser tab icon (favicon)_
+        - globals.css       _# Global styles_
+        - layout.tsx        _# App layout structure_
+        - page.module.css   _# Page-specific styles_
+        - page.tsx          _# Main page component_
+        - components/          _# Reusable components_
+            - Footer.tsx        **# Footer component**
+            - Header.tsx        **# Header component**
+            - SurveyList.js     **# Displays survey list**
+        - utils/               _# Utility functions/helpers_
+            - hooks/            _# Custom React hooks_
+            - libs/             _# Helper libraries_
+            - services/         _# External services_
+                - limesurvey.js **# LimeSurvey integration**
+                
   - .env                     _# Environment variables (API keys)_
   - esling.config.mjs        _# ESLint config (JS/TS linting)_
   - next.env.d.ts            _# TypeScript declarations for environment_
