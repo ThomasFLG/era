@@ -5,8 +5,7 @@ erav2/
 │   │   ├── layout.tsx             # Mise en page globale
 │   │   ├── globals.css            # Feuille de style globale
 │   │   ├── api/                   # Dossier pour les API
-│   │   │   └── limesurvey/        # Dossier spécifique à l'API LimeSurvey
-│   │   │       └── route.ts       # Route API pour récupérer le session_key
+│   │   │   └── route.js           # Route API pour récupérer le session_key
 │   ├── public/                    # Fichiers statiques (images, favicon, etc.)
 │   ├── utils/                     # Dossier pour les fonctions utilitaires
 │   │   └── limesurvey.ts          # Fonction utilitaire pour interagir avec LimeSurvey
