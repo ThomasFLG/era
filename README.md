@@ -23,40 +23,40 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 ## Project Structure
 
 erav2/
-├── src/                      # ───────────── Main source directory─────────────
-│   ├── app/                  # ───────── Application-specific files and components ─────────────────
-│   │  ├── api/               # ── API-related files (defines API routes and endpoints) ────────
-│   │  │   ├── route.js       # API routes file (handling requests to server-side endpoints)
-│   │  ├── products/          # ── Product-related pages or components ───────────────────────────
-│   │  │   ├── [id].tsx       # Dynamic product page, used to display details based on the product ID
-│   │  ├── favicon.ico        # Favicon file for browser tab icon
-│   │  ├── globals.css        # Global CSS file for overall styling of the app
-│   │  ├── layout.tsx         # Layout file that defines the structure for the application pages
-│   │  ├── page.module.css    # Page-specific CSS module, scoped to the layout/page
-│   │  ├── page.tsx           # Main page component, often the homepage or root of the app
-│   ├── components/           # ── Reusable components used across various pages ─────────────────────
-│   │  ├── Footer.tsx         # Footer component for the bottom of the page
-│   │  ├── Header.tsx         # Header component, typically displayed at the top of the page
-│   │  ├── SurveyList.js      # Component for displaying a list of surveys
-│   ├── public/               # ── Static files and assets (images, icons, SVGs) ─────────────────────
-│   │  ├── file.svg           # SVG image (can be used for logos, icons, etc.)
-│   │  ├── globe.svg          # SVG file, potentially representing a globe icon
-│   │  ├── next.svg           # Next.js logo or SVG graphic
-│   │  ├── vercel.svg         # Vercel logo (for deployment/branding purposes)
-│   │  ├── window.svg         # SVG image for window icon or similar graphic
-│   ├── utils/                # ── Utility functions and helpers ─────────────────────────────────
-│   │  ├── hooks/             # Custom React hooks, encapsulating reusable logic
-│   │  ├── libs/              # Helper libraries for additional functionality (e.g., date manipulation, formatting)
-│   │  ├── services/          # ── Services for handling business logic or external interactions ──
-│   │  │   ├── limesurvey.js  # Service for working with LimeSurvey (e.g., data fetching, API calls)
-├── .env                      # ── Environment variables (API keys, secrets) ──────────────────────────
-├── esling.config.mjs         # ── ESLint configuration file for linting JavaScript/TypeScript ───
-├── next.env.d.ts             # ── TypeScript declaration for Next.js environment variables ───────
-├── package-lock.json         # ── Automatically generated, ensures consistent package installation ──
-├── package.json              # ── Project's metadata and npm dependencies ───────────────────────────
-├── README.md                 # ── Project documentation (guidelines, setup, etc.) ─────────────────────
-├── tsconfig.json             # ── TypeScript configuration, defines the compiler settings ────────
-├── tsconfig.tsbuildinfo      # ── TypeScript build info file for incremental builds ───────────────
+├── src/                     # Main source directory
+│   ├── app/                 # Application files & components
+│   │  ├── api/              # API routes & endpoints
+│   │  │   ├── route.js      # Handles API requests
+│   │  ├── products/         # Product-related pages/components
+│   │  │   ├── [id].tsx      # Product page (dynamic routing)
+│   │  ├── favicon.ico       # Browser tab icon (favicon)
+│   │  ├── globals.css       # Global styles
+│   │  ├── layout.tsx        # App layout structure
+│   │  ├── page.module.css   # Page-specific styles
+│   │  ├── page.tsx          # Main page component
+│   ├── components/          # Reusable components
+│   │  ├── Footer.tsx        # Footer component
+│   │  ├── Header.tsx        # Header component
+│   │  ├── SurveyList.js     # Displays survey list
+│   ├── public/              # Static assets (images, icons)
+│   │  ├── file.svg          # Image/Icon (SVG)
+│   │  ├── globe.svg         # Globe icon (SVG)
+│   │  ├── next.svg          # Next.js logo (SVG)
+│   │  ├── vercel.svg        # Vercel logo (SVG)
+│   │  ├── window.svg        # Window icon (SVG)
+│   ├── utils/               # Utility functions/helpers
+│   │  ├── hooks/            # Custom React hooks
+│   │  ├── libs/             # Helper libraries
+│   │  ├── services/         # External services
+│   │  │   ├── limesurvey.js # LimeSurvey integration
+├── .env                     # Environment variables (API keys)
+├── esling.config.mjs        # ESLint config (JS/TS linting)
+├── next.env.d.ts            # TypeScript declarations for environment
+├── package-lock.json        # Ensures consistent package installs
+├── package.json             # Project metadata & dependencies
+├── README.md                # Project documentation
+├── tsconfig.json            # TypeScript compiler settings
+├── tsconfig.tsbuildinfo     # TypeScript build info (for incremental builds)
 
 
 ## Learn More
