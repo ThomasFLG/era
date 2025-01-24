@@ -5,8 +5,7 @@ export default function Header() {
         <nav>
           <ul style={{ display: 'flex', listStyle: 'none', padding: 0 }}>
             <li style={{ margin: '0 15px' }}><a href="/">Accueil</a></li>
-            <li style={{ margin: '0 15px' }}><a href="/about">À propos</a></li>
-            <li style={{ margin: '0 15px' }}><a href="/contact">Contact</a></li>
+            <li style={{ margin: '0 15px' }}><a href="/listeSurvey">Liste des formulaires</a></li>
           </ul>
         </nav>
       </header>

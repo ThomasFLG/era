@@ -32,9 +32,10 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
   - src/                     # Main source directory
     - app/                 _# Application files & components_
         - api/              _# API routes & endpoints_
-            - route.js      **# Handles API requests**
-        - products/         _# Product-related pages/components_
-            - [id].tsx      **# Product page (dynamic routing)**
+            - route/
+                - route.js      **# Handles API requests**
+        - listeSurvey/      # listeSurvey-related pages/components_
+            - page.tsx      **# listeSurvey page (dynamic routing)**
         - favicon.ico       _# Browser tab icon (favicon)_
         - globals.css       _# Global styles_
         - layout.tsx        _# App layout structure_
