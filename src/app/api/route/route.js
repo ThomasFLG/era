@@ -18,7 +18,6 @@ export async function GET(req) {
         
         if (action === "allSurvey") {
             const surveys = await LimeSurvey.allSurvey(LimeSurvey.url);
-            console.log("Surveys récupérés:", surveys);
             
             if (!Array.isArray(surveys)) {
                 throw new Error("Le format de la réponse n'est pas un tableau.");

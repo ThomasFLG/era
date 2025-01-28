@@ -1,95 +1,65 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
 
-export default function Home() {
+import { useEffect, useState } from "react";
+
+interface Survey {
+  sid: string;
+  surveyls_title: string;
+}
+
+export default function SurveyList() {
+  const [surveys, setSurveys] = useState<Survey[]>([]);
+
+  useEffect(() => {
+    fetch("/api/route?action=allSurvey")
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("Données API :", data);
+
+        if (Array.isArray(data.surveys)) {
+          setSurveys(data.surveys);
+        } else {
+          console.error("Format inattendu :", data);
+          setSurveys([]);
+        }
+      })
+      .catch((err) => {
+        console.error("Erreur API:", err);
+        setSurveys([]);
+      });
+  }, []);
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>src/app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+    <div>
+      <h1>Définir les dates d'activation et d'expiration</h1>
+      <p>Sur cette page, on peut définir pour chaque questionnaire LimeSurvey IFRASS des dates d'activation et d'expiration.
+Lorsque la date d'activation d'un formulaire est atteinte, cela envoi automatiquement un mail d'invitation à tous les participants.</p>
+<p>De plus, si le mail ne reçoit aucune réponse au bout de une semaine, un nouveau mail de rappel automatique est envoyé.</p>
+<p>Enfin, la date d'expiration du formulaire définie cloture automatiquement l'accès au formulaire LimeSurvey pour les étudiants</p>
+      {surveys.length > 0 ? (
+        <table className="table-style">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Titre</th>
+              <th>Date activation questionnaire</th>
+              <th>Date expiration questionnaire</th>
+            </tr>
+          </thead>
+          <tbody>
+            {surveys.map((survey) => (
+              <tr key={survey.sid}>
+                <td>{survey.sid}</td>
+                <td>{survey.surveyls_title}</td>
+                <td><input type="date"></input></td>
+                <td><input type="date"></input></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p>Aucun questionnaire disponible.</p>
+      )}
     </div>
   );
 }

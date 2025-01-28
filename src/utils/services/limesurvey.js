@@ -8,7 +8,7 @@ dotenv.config(); //charge les variables du fichier .env
  export const password = process.env.LIME_PASSWORD;
  console.log(url,username,password);
 
- allSurvey(url);
+ getSessionKey(url,username,password);
 
 /**
  * Fonction pour récupérer la session_key de LimeSurvey
@@ -98,12 +98,13 @@ async function allSurvey(url) {
             }
         });
         if (response.data.result) {
+            console.log("Resultat : : ",response.data.result);
             return response.data.result;
         } else {
             console.error('Erreur API :',response.data.error);
         }
     } catch (error) {
-        handleError(error);
+        console.log("Erreur : ",error);
     }
 }
 

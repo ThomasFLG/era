@@ -1,14 +1,19 @@
-// src/app/components/Header.tsx
 export default function Header() {
-    return (
-      <header>
-        <nav>
-          <ul style={{ display: 'flex', listStyle: 'none', padding: 0 }}>
-            <li style={{ margin: '0 15px' }}><a href="/">Accueil</a></li>
-            <li style={{ margin: '0 15px' }}><a href="/listeSurvey">Liste des formulaires</a></li>
-          </ul>
+  return (
+    <header>
+      <div className="nav-container">
+        <nav className="nav">
+          <img src="../../era.png" alt="logo" className="logo" />
+          <div className="nav-links">
+            <div className="nav-item">
+              <a href="/">Définir date activation/expiration</a>
+            </div>
+            <div className="nav-item">
+              <a href="http://localhost/limesurvey/index.php?r=admin/authentication/sa/login">Connexion admin Limesurvey</a>
+            </div>
+          </div>
         </nav>
-      </header>
-    );
-  }
-  
+      </div>
+    </header>
+  );
+}

@@ -25,7 +25,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="fr">
       <head>
         <meta charSet="UTF-8"/>
-        <title>Era v2</title>
+        <title>Era - LimeSurvey</title>
       </head>
 
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
