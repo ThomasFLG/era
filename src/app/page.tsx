@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 interface Survey {
   sid: string;
   surveyls_title: string;
+  startdate: string | null;
+  expires: string | null;
 }
 
 export default function SurveyList() {
@@ -29,6 +31,12 @@ export default function SurveyList() {
       });
   }, []);
 
+  const formatDate = (date: string | null): string => {
+    if (!date) return "";
+    const formatDate = new Date(date).toISOString().split("T")[0];
+    return formatDate;
+  }
+
   return (
     <div>
       <h1>Définir les dates d'activation et d'expiration</h1>
@@ -51,14 +59,24 @@ Lorsque la date d'activation d'un formulaire est atteinte, cela envoi automatiqu
               <tr key={survey.sid}>
                 <td>{survey.sid}</td>
                 <td>{survey.surveyls_title}</td>
-                <td><input type="date"></input></td>
-                <td><input type="date"></input></td>
+                <td>
+                  <input
+                    type="date"
+                    defaultValue={formatDate(survey.startdate)}
+                 />
+                </td>
+                <td>
+                  <input
+                    type="date"
+                    defaultValue={formatDate(survey.expires)}
+                  />
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       ) : (
-        <p>Aucun questionnaire disponible.</p>
+        <p>Chargement des questionnaires ... </p>
       )}
     </div>
   );
