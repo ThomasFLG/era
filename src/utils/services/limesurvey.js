@@ -3,11 +3,11 @@ import axios from 'axios';
 import dotenv from 'dotenv';
 dotenv.config(); //charge les variables du fichier .env
 
- export const url = process.env.LIME_URL;
- export const username = process.env.LIME_USERNAME;
- export const password = process.env.LIME_PASSWORD;
+export const url = process.env.LIME_URL;
+export const username = process.env.LIME_USERNAME;
+export const password = process.env.LIME_PASSWORD;
 
- getSessionKey(url,username,password);
+ //getSessionKey(url,username,password);
 /**
  * Fonction pour récupérer la session_key de LimeSurvey
  * @param {string} url - L'URL de l'API LimeSurvey
@@ -84,6 +84,7 @@ async function isCorrect(sessionKey,url,utilisateur,motDePasse) {
 async function allSurvey(url) {
     const sessionKey = await getSessionKey(url,username,password);
     try {
+        console.log("URL : ",url);
         const response = await axios.post(url,{
             jsonrpc: '2.0',
             method: 'list_surveys',
@@ -96,7 +97,6 @@ async function allSurvey(url) {
             }
         });
         if (response.data.result) {
-            console.log("Resultat : ",response.data.result);
             return response.data.result;
         } else {
             console.error('Erreur API :',response.data.error);
@@ -267,7 +267,7 @@ async function activateSurvey(sessionKey, url, surveyId) {
             jsonrpc: '2.0',
             method: 'activate_survey',
             params: [sessionKey, surveyId],
-            id: 8,
+            id: 7,
         }, {
             headers: {
                 'Content-Type': 'application/json',
@@ -309,7 +309,7 @@ async function sendEmail(sessionKey, url, surveyId) {
                 surveyId,             // ID du questionnaire pour lequel les mails seront envoyés
                 [],
             ],
-            id: 7,                  // ID de la requête (peut être un identifiant unique pour chaque requête)
+            id: 8,                  // ID de la requête (peut être un identifiant unique pour chaque requête)
         }, {
             headers: {
                 'Content-Type': 'application/json',
@@ -362,4 +362,125 @@ async function checkStartDate(sessionKey, url, surveyId) {
     }
 }
 
-export {getSessionKey, isCorrect, survey, allSurvey, getStartDate, setStartDate, getParticipants, activateSurvey, sendEmail, checkStartDate};
+/**
+ * Fonction pour modifier la date d'activation (startdate) d'un questionnaire
+ * @param {int} surveyID - L'ID du questionnaire
+ * @param {string} newStartDate - Nouvelle date au format 'YYYY-MM-DD HH:MM:SS'
+ */
+async function updateStartDate(surveyID, newStartDate) {
+    const sessionKey = await getSessionKey(url, username, password);
+    if (!sessionKey) {
+        console.error("Impossible de récupérer la sessionKey.");
+        return { success: false, error: "Echec de l'authentification"};
+    }
+    
+    try {
+        const response = await axios.post(url, {
+            jsonrpc: '2.0',
+            method: 'set_survey_properties',
+            params: [sessionKey, surveyID, { startdate: newStartDate }],
+            id: 9,
+        }, {
+            headers: {'Content-Type': 'application/json'}
+        });
+
+        if (response.data.result) {
+            console.log(`Date d'activation du questionnaire ${surveyID} mise à jour avec succès.`);
+            return { success: true};
+        } else {
+            console.error('Erreur API :', response.data.error);
+            return { success: false, error: response.data.error};
+        }
+    } catch (error) {
+        console.error("Erreur lors de la mise à jour de la date d'activation :", error);
+        return { success: false, error: "Erreur lors de la requete API"};
+    }
+}
+
+/**
+ * Fonction pour modifier la date d'expiration (expires) d'un questionnaire
+ * @param {int} surveyID - L'ID du questionnaire
+ * @param {string} newExpiresDate - Nouvelle date d'expiration au format 'YYYY-MM-DD HH:MM:SS'
+ */
+async function updateExpiresDate(surveyID, newExpiresDate) {
+    const sessionKey = await getSessionKey(url, username, password);
+    if (!sessionKey) {
+        console.error("Impossible de récupérer la sessionKey.");
+        return { success: false, error: "Echec de l'authentification"};
+    }
+    
+    try {
+        const response = await axios.post(url, {
+            jsonrpc: '2.0',
+            method: 'set_survey_properties',
+            params: [sessionKey, surveyID, { expires: newExpiresDate }],
+            id: 10,
+        }, {
+            headers: {'Content-Type': 'application/json'}
+        });
+
+        console.log("Réponse complète de LimeSurvey : ", response.data);
+
+        if (response.data.result) {
+            console.log(`Date d'expiration du questionnaire ${surveyID} mise à jour avec succès.`);
+            return { success: true };
+        } else {
+            console.error('Erreur API :', response.data.error);
+            return { success: false, error: response.data.error };
+        }
+    } catch (error) {
+        console.error("Erreur lors de la mise à jour de la date d'expiration :", error);
+        return { success: false, error: "Erreur lors de la requête API" };
+    }
+}
+
+
+/**
+ * Fonction pour obtenir les participants d'un formulaire dont l'invitation n'a pas été envoyée
+ * @param {string} sessionKey - La clé de session LimeSurvey
+ * @param {string} url - L'URL de l'API LimeSurvey
+ * @param {number} surveyId - L'identifiant du questionnaire (SID)
+ * @returns {string[]} Un tableau contenant les adresses e-mail des participants sans invitation envoyée
+ **/
+async function getParticipantsNoInvitation(url, surveyId) {
+    const sessionKey = await getSessionKey(url, username, password);
+    if (!sessionKey) {
+        console.error("Impossible de récupérer la sessionKey.");
+        return { success: false, error: "Echec de l'authentification"};
+    }
+    try {
+        // Appel à l'API LimeSurvey pour récupérer la liste des participants
+        const response = await axios.post(url, {
+            jsonrpc: '2.0',
+            method: 'list_participants',
+            params: [sessionKey, surveyId, 0, 1000], // Limiter à 1000 participants
+            id: 11,
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        // Vérification que la réponse contient des résultats
+        if (response.data.result) {
+            console.log(`Participants du questionnaire ${surveyId} :`, response.data.result);
+
+            // Filtrer les participants dont le emailstatus est différent de 'I' (invité)
+            const participantsNoInvitation = response.data.result.filter(participant => {
+                // Accéder au statut 'emailstatus' dans 'participant_info' et le vérifier
+                return participant.participant_info.emailstatus !== 'I';  // 'I' = invité
+            });
+
+            // Retourner les e-mails des participants qui n'ont pas encore été invités
+            return participantsNoInvitation.map(p => p.participant_info.email);
+        } else {
+            console.error('Erreur lors de la récupération des participants :', response.data.error);
+            return [];
+        }
+    } catch (error) {
+        console.error('Erreur lors de la requête :', error.message);
+        return [];
+    }
+}
+
+export {getSessionKey, isCorrect, survey, allSurvey, getStartDate, setStartDate, getParticipants, activateSurvey, sendEmail, checkStartDate, updateStartDate, updateExpiresDate,getParticipantsNoInvitation};

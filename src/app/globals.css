@@ -116,3 +116,13 @@ p {
   padding-right: 10px;    /* Ajoute un petit espacement à droite */
   text-align: justify;    /* Justifie le texte pour une meilleure lisibilité */
 }
+
+.status-active {
+  color: green;
+  font-weight: bold;
+}
+
+.status-inactive {
+  color: red;
+  font-weight: bold;
+}
