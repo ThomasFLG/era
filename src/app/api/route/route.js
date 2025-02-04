@@ -1,4 +1,4 @@
-import * as LimeSurvey from "../../../utils/services/limesurvey.js";
+import * as LimeSurvey from "../../../utils/limesurvey/index.js";
 
 export async function GET(req) {
     try {
