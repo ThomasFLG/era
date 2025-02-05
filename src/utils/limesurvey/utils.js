@@ -1,5 +1,6 @@
 import axios from 'axios';
 import dotenv from 'dotenv';
+import * as LimeSurvey from "./index.js";
 dotenv.config(); //charge les variables du fichier .env
 
 export const url = process.env.LIME_URL;
@@ -27,7 +28,7 @@ export async function getSessionKey(url,utilisateur,motDePasse) {
             }
         });
         if (response.data.result) {
-            const sessionKey = response.data.result;  // Récupération du session_key
+            const sessionKey = response.data.result;  // Récupération session_key
             return sessionKey;
         }
         
@@ -62,7 +63,7 @@ export async function getSessionKey(url,utilisateur,motDePasse) {
 
 /**
  * Fonction pour savoir si la clé dession est correcte
- * @param {string} sessionKey - La sessionKey ou PHPSESSID
+ * @param {string} sessionKey - La sessionKey
  * @returns {string} Une clé de session valide
  */
 export async function isCorrect(sessionKey,url,utilisateur,motDePasse) {

@@ -1,11 +1,13 @@
 import axios from 'axios';
-
+import { getSessionKey } from './utils';
 import dotenv from 'dotenv';
 dotenv.config(); //charge les variables du fichier .env
 
 export const url = process.env.LIME_URL;
 export const username = process.env.LIME_USERNAME;
 export const password = process.env.LIME_PASSWORD;
+
+const sessionKey = await getSessionKey(url,username,password);
 
 /**
  * Envoi d'e-mail aux participants du questionnaire
@@ -15,7 +17,7 @@ export const password = process.env.LIME_PASSWORD;
  * @param {number} surveyId - L'identifiant du questionnaire (SID)
  * @returns {boolean} Renvoie si la fonction a envoyé le mail
  */
-export async function sendInvitation(sessionKey, url, surveyId) {
+export async function sendInvitation(url, surveyId) {
     try {
         
         // Les paramètres nécessaires pour l'API

@@ -1,5 +1,5 @@
 import axios from 'axios';
-
+import { getSessionKey } from './utils';
 import dotenv from 'dotenv';
 dotenv.config(); //charge les variables du fichier .env
 
@@ -7,7 +7,9 @@ export const url = process.env.LIME_URL;
 export const username = process.env.LIME_USERNAME;
 export const password = process.env.LIME_PASSWORD;
 
-export async function getParticipantsNoInvites(sessionKey, url, surveyId) {
+const sessionKey = await getSessionKey(url,username,password);
+
+export async function getParticipantsNoInvitation(url, surveyId) {
     try {
         const response = await axios.post(url, {
             jsonrpc: '2.0',

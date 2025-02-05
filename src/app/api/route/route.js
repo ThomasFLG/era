@@ -48,18 +48,20 @@ export async function POST(req) {
             return Response.json({ error: "Parametres manquants" }, { status: 400});
         }
 
-        if (action === "updateStartDate") {
-            const result = await LimeSurvey.updateStartDate(surveyID,newStartDate);
+        if (action === "setStartDate") {
+            console.log("Tentative de mise à jour de la date de début");
+            const result = await LimeSurvey.setStartDate(surveyID,newStartDate);
+            console.log("Résultat de la mise à jour : ",result);
 
-            if (result.success) {
+            if (result) {
                 return Response.json( { success: true}, { status: 200});
             } else {
                 return Response.json( { error: result.error }, { status: 500});
             }
-        } else if (action === "updateExpiresDate") {
-            const result = await LimeSurvey.updateExpiresDate(surveyID,newExpiresDate);
+        } else if (action === "setExpiresDate") {
+            const result = await LimeSurvey.setExpiresDate(surveyID,newExpiresDate);
 
-            if (result.success) {
+            if (result) {
                 return Response.json( { sucess: true}, { status: 200});
             } else {
                 return Response.json( { error: result.error }, { status: 500});
@@ -70,6 +72,7 @@ export async function POST(req) {
 
     
     } catch (error) {
+        console.error("Erreur serveur : ",error);
         return Response.json({ error: "Erreur serveur" }, { status: 500 });
     }
 }

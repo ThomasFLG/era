@@ -68,20 +68,20 @@ export default function SurveyList() {
       });
   }, []);
 
-  const updateStartDate = async (surveyID: string, newStartDate: string) => {
+  const setStartDate = async (surveyID: string, newStartDate: string) => {
     if (!newStartDate) return;
     setLoading(true);
     setError(null);
 
     try {
-      const res = await fetch("/api/route?action=updateStartDate", {
+      const res = await fetch("/api/route?action=setStartDate", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           surveyID, newStartDate: newStartDate.replace("T", " ") + ":00",
-          action: "updateStartDate"
+          action: "setStartDate"
         }),
       });
 
@@ -105,20 +105,20 @@ export default function SurveyList() {
     }
   };
 
-  const updateExpiresDate = async (surveyID: string, newExpiresDate: string) => {
+  const setExpiresDate = async (surveyID: string, newExpiresDate: string) => {
     if (!newExpiresDate) return;
     setLoading(true);
     setError(null);
 
     try {
-      const res = await fetch("/api/route?action=updateExpiresDate", {
+      const res = await fetch("/api/route?action=setExpiresDate", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           surveyID, newExpiresDate: newExpiresDate.replace("T", " ") + ":00",
-          action: "updateExpiresDate"
+          action: "setExpiresDate"
         }),
       });
 
@@ -170,7 +170,7 @@ export default function SurveyList() {
                   <input
                     type="datetime-local"
                     value={survey.startdate ?? ""}
-                    onChange={(e) => updateStartDate(survey.sid, e.target.value)}
+                    onChange={(e) => setStartDate(survey.sid, e.target.value)}
                     disabled={loading}
                   />
                 </td>
@@ -178,7 +178,7 @@ export default function SurveyList() {
                   <input
                   type="datetime-local"
                   value={survey.expires ?? ""}
-                  onChange={(e) => updateExpiresDate(survey.sid,e.target.value)}
+                  onChange={(e) => setExpiresDate(survey.sid,e.target.value)}
                 />
                 </td>
                 <td>

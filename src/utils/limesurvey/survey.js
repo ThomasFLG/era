@@ -1,3 +1,5 @@
+import { getSessionKey } from './utils';
+
 import axios from 'axios';
 import dotenv from 'dotenv';
 dotenv.config(); //charge les variables du fichier .env
@@ -6,6 +8,8 @@ export const url = process.env.LIME_URL;
 export const username = process.env.LIME_USERNAME;
 export const password = process.env.LIME_PASSWORD;
 
+const sessionKey = await getSessionKey(url,username,password);
+
 
 /**
  * Fonction pour récupérer tous les formulaires (enquêtes) avec toutes les informations
@@ -13,7 +17,7 @@ export const password = process.env.LIME_PASSWORD;
  * @param {string} urlListSurvey - L'URL de l'API LimeSurvey pour la liste des sondages
  * @returns {Array} Liste des enquêtes avec leurs informations
  */
-export async function allSurvey(url, sessionKey) {
+export async function allSurvey(url) {
     try {
         console.log("URL : ",url);
         const response = await axios.post(url,{

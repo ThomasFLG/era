@@ -1,5 +1,5 @@
 import axios from 'axios';
-
+import { getSessionKey } from './utils';
 import dotenv from 'dotenv';
 dotenv.config(); //charge les variables du fichier .env
 
@@ -7,13 +7,15 @@ export const url = process.env.LIME_URL;
 export const username = process.env.LIME_USERNAME;
 export const password = process.env.LIME_PASSWORD;
 
+const sessionKey = await getSessionKey(url,username,password);
+
 /**
  * Fonction pour renvoyer la date d'activation d'un questionnaire
  * @param {string} sessionKey - La clé de session LimeSurvey
  * @param {number} surveyID - L'identifiant du questionnaire (SID)
  * @returns {string|null} Retourne la startdate du formulaire ou null en cas d'erreur
  */
-export async function getStartDate(sessionKey, surveyID) {
+export async function getStartDate(surveyID) {
     try {
         const response = await axios.post(url, {
             jsonrpc: '2.0',
@@ -46,7 +48,7 @@ export async function getStartDate(sessionKey, surveyID) {
  * @param {date} newDate - La nouvelle date
  * @returns {boolean} Indique si la modification de la date a été faite
 **/
-export async function setStartDate(sessionKey,surveyID,newDate) {
+export async function setStartDate(surveyID,newDate) {
     try {
         const response = await axios.post(url, {
             jsonrpc: '2.0',
@@ -84,7 +86,7 @@ export async function setStartDate(sessionKey,surveyID,newDate) {
  * @param {number} surveyID - L'identifiant du questionnaire (SID)
  * @returns {datetime} Retourne expires du formulaire
  */
-export async function getExpiresDate(sessionKey, surveyID) {
+export async function getExpiresDate(surveyID) {
     try {
         const response = await axios.post(url, {
             jsonrpc: '2.0',
@@ -118,7 +120,7 @@ export async function getExpiresDate(sessionKey, surveyID) {
  * @param {int} surveyID - L'ID du questionnaire
  * @param {string} newExpiresDate - Nouvelle date d'expiration au format 'YYYY-MM-DD HH:MM:SS'
  */
-export async function setExpiresDate(sessionKey, surveyID, newExpiresDate) {
+export async function setExpiresDate(surveyID, newExpiresDate) {
     try {
         const response = await axios.post(url, {
             jsonrpc: '2.0',
