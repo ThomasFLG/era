@@ -17,7 +17,7 @@ async function testParticipants () {
     }
     const listeParticipants = await LimeSurvey.getParticipants(sessionKey,url,surveyID);
     console.log(`Les participants du formulaire ${surveyID} sont : `,listeParticipants);
-    const listeParticipantsNoInvitation = await LimeSurvey.getUninvitedParticipants(sessionKey,url,surveyID);
+    const listeParticipantsNoInvitation = await LimeSurvey.getParticipantsNoInvites(sessionKey,url,surveyID);
     console.log("Parmis eux, ceux qui n'ont pas eu de mail d'invitation sont : ",listeParticipantsNoInvitation);
 }
 
