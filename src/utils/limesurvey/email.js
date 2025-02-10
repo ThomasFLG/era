@@ -1,23 +1,13 @@
 import axios from 'axios';
-import { getSessionKey } from './utils';
-import dotenv from 'dotenv';
-dotenv.config(); //charge les variables du fichier .env
+import {getParticipantsNoInvitation} from "./participants.js";
 
-export const url = process.env.LIME_URL;
-export const username = process.env.LIME_USERNAME;
-export const password = process.env.LIME_PASSWORD;
-
-const sessionKey = await getSessionKey(url,username,password);
 
 /**
- * Envoi d'e-mail aux participants du questionnaire
- * Cette fonction ne peut envoyer une invitation qu'une seule fois pour chaque participant
- * @param {string} sessionKey - La clé de session LimeSurvey
- * @param {string} url - L'URL de l'API LimeSurvey
+ * Envoi d'e-mail à tous les participants d'un questionnaire
  * @param {number} surveyId - L'identifiant du questionnaire (SID)
  * @returns {boolean} Renvoie si la fonction a envoyé le mail
  */
-export async function sendInvitation(url, surveyId) {
+export async function sendInvitation(sessionKey,surveyId,url) {
     try {
         
         // Les paramètres nécessaires pour l'API
@@ -26,7 +16,7 @@ export async function sendInvitation(url, surveyId) {
             jsonrpc: '2.0',
             method: 'invite_participants',
             params: [
-                sessionKey,           // Clé de session pour authentifier l'appel
+                sessionKey,// Clé de session pour authentifier l'appel
                 surveyId,             // ID du questionnaire pour lequel les mails seront envoyés
                 [],
             ],
@@ -58,5 +48,63 @@ export async function sendInvitation(url, surveyId) {
             // Quelque chose a causé un problème dans la configuration de la requête
             console.error('Erreur lors de la configuration de la requête:', error.message);
         }
+    }
+}
+
+/**
+ * Envoi d'e-mail aux participants d'un questionnaire qui n'en ont jamais reçu
+ * @param {number} surveyId - L'identifiant du questionnaire (SID)
+ * @returns {boolean} Renvoie si la fonction a envoyé le mail
+ */
+export async function sendInvitationToPendingParticipants(sessionKey,surveyId,url) {
+    try {
+        // Récupérer les participants sans invitation
+        const participants = await getParticipantsNoInvitation(sessionKey, surveyId,url);
+
+        if (!Array.isArray(participants) || participants.status === 0) {
+            if (participants.status === 'No survey participants found.') {
+                console.log(`🎯 Tous les participants du questionnaire ${surveyId} ont déjà reçu une invitation.`);
+            } else {
+                console.log(`❌ Aucun participant sans invitation pour le questionnaire ${surveyId}`);
+            }
+            return 0;  // Retourner 0 si aucun participant n'est trouvé
+        }
+        
+
+        // Extraire les emails des participants
+        const tokenIds = participants
+        .filter(participant => participant.tid)  // Vérifie que l'email existe dans participant_info
+        .map(participant => participant.tid);
+
+        if (tokenIds.length === 0) {
+            console.log(`Aucun token valide trouvé pour l'envoi d'invitations au questionnaire ${surveyId}`);
+            return 0;
+        }
+
+        // Envoyer les invitations uniquement aux emails récupérés
+        const response = await axios.post(url, {
+            jsonrpc: '2.0',
+            method: 'invite_participants',
+            params: [
+                sessionKey, 
+                surveyId, 
+                tokenIds,     // Tableau des token IDs pour lesquels envoyer l'invitation
+                true          // bEmail : envoyer l'e-mail
+            ],
+            id: 8,
+        }, {
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (response.data.result) {
+            console.log(`Emails envoyés avec succès pour le questionnaire ${surveyId}`);
+            return tokenIds.length;
+        } else {
+            console.error(`Erreur lors de l'envoi des invitations pour le questionnaire ${surveyId}:`, response.data.error);
+            return 0;
+        }
+    } catch (error) {
+        console.error(`Erreur lors de l'envoi des invitations pour le questionnaire ${surveyId}:`, error);
+        return 0;
     }
 }

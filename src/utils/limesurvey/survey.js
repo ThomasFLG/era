@@ -1,25 +1,12 @@
-import { getSessionKey } from './utils';
-
 import axios from 'axios';
-import dotenv from 'dotenv';
-dotenv.config(); //charge les variables du fichier .env
-
-export const url = process.env.LIME_URL;
-export const username = process.env.LIME_USERNAME;
-export const password = process.env.LIME_PASSWORD;
-
-const sessionKey = await getSessionKey(url,username,password);
-
 
 /**
  * Fonction pour récupérer tous les formulaires (enquêtes) avec toutes les informations
- * @param {string} sessionKey - La clé de session obtenue
- * @param {string} urlListSurvey - L'URL de l'API LimeSurvey pour la liste des sondages
+ * @param {string} sessionKey Cle API limesurvey
  * @returns {Array} Liste des enquêtes avec leurs informations
  */
-export async function allSurvey(url) {
+export async function allSurvey(sessionKey,url) {
     try {
-        console.log("URL : ",url);
         const response = await axios.post(url,{
             jsonrpc: '2.0',
             method: 'list_surveys',
@@ -43,12 +30,10 @@ export async function allSurvey(url) {
 
 /**
  * Fonction pour récupérer les informations du formulaire que l'on souhaite
- * @param {string} sessionKey - La clé de session obtenue
- * @param {string} urlListSurvey - L'URL de l'API LimeSurvey pour la liste des sondages
  * @param {number} surveyId - L'identifiant du questionnaire (SID)
  * @returns {Array} Liste des enquêtes avec leurs informations
  */
-export async function survey(sessionKey, url, surveyId) {
+export async function survey(sessionKey,surveyId,url) {
     try {
         const response = await axios.post(url,{
             jsonrpc: '2.0',
@@ -67,6 +52,7 @@ export async function survey(sessionKey, url, surveyId) {
             console.error('Erreur API :',response.data.error);
         }
     } catch (error) {
+        console.error("Erreur dans allSurvey :", error.message);
         if (error.response) {
             // Erreur côté serveur, avec une réponse HTTP
             console.error("Erreur HTTP :", error.response.status);
@@ -83,12 +69,10 @@ export async function survey(sessionKey, url, surveyId) {
 
 /**
  * Fonction pour activer un questionnaire
- * @param {string} sessionKey - La clé de session LimeSurvey
- * @param {string} url - L'URL de l'API LimeSurvey
  * @param {number} surveyId - L'identifiant du questionnaire (SID)
  * @returns {boolean} Indique si l'activation a été effectuée avec succès
  */
-export async function activateSurvey(sessionKey, url, surveyId) {
+export async function activateSurvey(sessionKey,surveyId,url) {
     try {
         const response = await axios.post(url, {
             jsonrpc: '2.0',

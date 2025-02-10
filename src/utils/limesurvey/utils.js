@@ -1,25 +1,15 @@
 import axios from 'axios';
-import dotenv from 'dotenv';
-import * as LimeSurvey from "./index.js";
-dotenv.config(); //charge les variables du fichier .env
-
-export const url = process.env.LIME_URL;
-export const username = process.env.LIME_USERNAME;
-export const password = process.env.LIME_PASSWORD;
 
 /**
  * Fonction pour récupérer la session_key de LimeSurvey
- * @param {string} url - L'URL de l'API LimeSurvey
- * @param {string} utilisateur - Le nom d'utilisateur LimeSurvey
- * @param {string} motDePasse - Le mot de passe LimeSurvey
  * @returns {string} La session_key si la requête réussit
  */
-export async function getSessionKey(url,utilisateur,motDePasse) {
+export async function getSessionKey(url, username, password) {
     try {
         const response = await axios.post(url,{
             jsonrpc: '2.0',
             method: 'get_session_key',
-            params: [utilisateur,motDePasse],
+            params: [username,password],
             id: 1,
         },
             {
@@ -58,19 +48,4 @@ export async function getSessionKey(url,utilisateur,motDePasse) {
             console.error("Erreur lors de la configuration de la requête : ", error.message);
         }
     }
-}
-
-
-/**
- * Fonction pour savoir si la clé dession est correcte
- * @param {string} sessionKey - La sessionKey
- * @returns {string} Une clé de session valide
- */
-export async function isCorrect(sessionKey,url,utilisateur,motDePasse) {
-    if (sessionKey && sessionKey.length > 0) {
-        console.log("La sessionKey fournie est valide")
-        return sessionKey
-    }
-    console.log("La sessionKey fournie est incorrecte ou absente. Génération d'une nouvelle sessionKey.");
-    return await getSessionKey(url, utilisateur, motDePasse);
 }

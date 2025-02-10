@@ -1,12 +1,19 @@
 import * as LimeSurvey from "../../../utils/limesurvey/index.js";
+import dotenv from "dotenv";
+dotenv.config(); // Charger les variables d'environnement en premier
+
+// Ensuite, exportation des variables
+const url = process.env.LIME_URL;
+const username = process.env.LIME_USERNAME;
+const password = process.env.LIME_PASSWORD;
+
+const sessionKey = await LimeSurvey.getSessionKey(url,username,password);
 
 export async function GET(req) {
     try {
         const { searchParams } = new URL(req.url, "http://localhost");
         const action = searchParams.get("action");
-        const surveyID = searchParams.get("surveyID");
-
-        console.log("Requete API avec action : ",action);
+        const surveyId = searchParams.get("surveyId");
 
         if (action === "getSessionKey") {
             const sessionKey = await LimeSurvey.getSessionKey(
@@ -18,19 +25,12 @@ export async function GET(req) {
         } 
         
         if (action === "allSurvey") {
-            const surveys = await LimeSurvey.allSurvey(LimeSurvey.url);
-            
-            if (!Array.isArray(surveys)) {
-                throw new Error("Le format de la réponse n'est pas un tableau.");
-            }
-
+            const surveys = await LimeSurvey.allSurvey(sessionKey,url);
             return Response.json({ surveys }, { status: 200});
-
         }
 
         if (action === "getParticipantsNoInvitation") {
-            const emails = await LimeSurvey.getParticipantsNoInvitation(LimeSurvey.url,surveyID);
-
+            const emails = await LimeSurvey.getParticipantsNoInvitation(LimeSurvey.url, surveyId);
             return Response.json({ emails }, { status: 200});
         }
 
@@ -41,38 +41,45 @@ export async function GET(req) {
 }
 
 export async function POST(req) {
-    const { surveyID, newStartDate, action, newExpiresDate } = await req.json();
-
     try {
-        if (!surveyID || !action) {
-            return Response.json({ error: "Parametres manquants" }, { status: 400});
+        let body;
+        try {
+            body = await req.json();
+        } catch (error) {
+            return Response.json({ error: "Requête JSON invalide" }, { status: 400 });
+        }
+
+        const { surveyId, newStartDate, action, newExpiresDate } = body || {};
+
+        if (!surveyId || !action) {
+            return Response.json({ error: "Paramètres manquants" }, { status: 400 });
         }
 
         if (action === "setStartDate") {
-            console.log("Tentative de mise à jour de la date de début");
-            const result = await LimeSurvey.setStartDate(surveyID,newStartDate);
-            console.log("Résultat de la mise à jour : ",result);
-
-            if (result) {
-                return Response.json( { success: true}, { status: 200});
-            } else {
-                return Response.json( { error: result.error }, { status: 500});
-            }
-        } else if (action === "setExpiresDate") {
-            const result = await LimeSurvey.setExpiresDate(surveyID,newExpiresDate);
-
-            if (result) {
-                return Response.json( { sucess: true}, { status: 200});
-            } else {
-                return Response.json( { error: result.error }, { status: 500});
-            }
-        } else {
-            return Response.json( { success: false}, {status:400} );
+            const result = await LimeSurvey.setStartDate(sessionKey,surveyId, newStartDate,url);
+            return result 
+                ? Response.json({ success: true }, { status: 200 })
+                : Response.json({ error: "Échec de la mise à jour" }, { status: 500 });
         }
 
-    
+        if (action === "setExpiresDate") {
+            const result = await LimeSurvey.setExpiresDate(sessionKey,surveyId, newStartDate,url);
+            return result
+                ? Response.json({ success: true }, { status: 200 })
+                : Response.json({ error: "Échec de la mise à jour" }, { status: 500 });
+        }
+
+        if (action === "sendInvitation") {
+            const result = await LimeSurvey.sendInvitation(sessionKey,surveyId,url);
+            return result
+                ? Response.json({ success: true }, { status: 200 })
+                : Response.json({ error: "Échec de l'envoi" }, { status: 500 });
+        }
+
+        return Response.json({ error: "Action non reconnue" }, { status: 400 });
+
     } catch (error) {
-        console.error("Erreur serveur : ",error);
+        console.error("Erreur serveur : ", error);
         return Response.json({ error: "Erreur serveur" }, { status: 500 });
     }
 }
