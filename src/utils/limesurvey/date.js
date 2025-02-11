@@ -3,7 +3,9 @@ import axios from 'axios';
 
 /**
  * Fonction pour renvoyer la date d'activation d'un questionnaire
- * @param {number} surveyId - L'identifiant du questionnaire (SID)
+ * @param {string} sessionKey Cle API limesurvey
+ * @param {number} surveyId L'identifiant du questionnaire (SID)
+ * @param {string} url URL de l'API RemoteControl 2 de LimeSurvey
  * @returns {string|null} Retourne la startdate du formulaire ou null en cas d'erreur
  */
 
@@ -33,8 +35,10 @@ export async function getStartDate(sessionKey,surveyId,url) {
 
 /**
  * Fonction pour modifier la date d'activation du formulaire
+ * @param {string} sessionKey Cle API limesurvey
  * @param {number} surveyId - L'identifiant du questionnaire (SID)
  * @param {date} newDate - La nouvelle date
+ * @param {string} url URL de l'API RemoteControl 2 de LimeSurvey
  * @returns {boolean} Indique si la modification de la date a été faite
 **/
 export async function setStartDate(sessionKey,surveyId,newDate,url) {
@@ -69,7 +73,9 @@ export async function setStartDate(sessionKey,surveyId,newDate,url) {
 
 /**
  * Fonction pour renvoyer la date d'expiration d'un questionnaire
+ * @param {string} sessionKey Cle API limesurvey
  * @param {number} surveyId - L'identifiant du questionnaire (SID)
+ * @param {string} url URL de l'API RemoteControl 2 de LimeSurvey
  * @returns {datetime} Retourne expires du formulaire
  */
 export async function getExpiresDate(sessionKey,surveyId,url) {
@@ -101,8 +107,11 @@ export async function getExpiresDate(sessionKey,surveyId,url) {
 
 /**
  * Fonction pour modifier la date d'expiration (expires) d'un questionnaire
+ * @param {string} sessionKey Cle API limesurvey
  * @param {int} surveyId - L'ID du questionnaire
  * @param {string} newExpiresDate - Nouvelle date d'expiration au format 'YYYY-MM-DD HH:MM:SS'
+ * @param {string} url URL de l'API RemoteControl 2 de LimeSurvey
+ * @returns {boolean} Indique si la modification a été faite
  */
 export async function setExpiresDate(sessionKey,surveyId,newExpiresDate,url) {
     try {
@@ -116,7 +125,6 @@ export async function setExpiresDate(sessionKey,surveyId,newExpiresDate,url) {
         });
 
         if (response.data.result) {
-            console.log(`Date d'expiration du questionnaire ${surveyId} mise à jour avec succès.`);
             return { success: true };
         } else {
             return { success: false, error: response.data.error };

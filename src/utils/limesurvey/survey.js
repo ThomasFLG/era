@@ -2,7 +2,8 @@ import axios from 'axios';
 
 /**
  * Fonction pour récupérer tous les formulaires (enquêtes) avec toutes les informations
- * @param {string} sessionKey Cle API limesurvey
+ * @param {string} sessionKey - Cle API limesurvey
+ * @param {string} url - URL de l'API RemoteControl 2 de LimeSurvey
  * @returns {Array} Liste des enquêtes avec leurs informations
  */
 export async function allSurvey(sessionKey,url) {
@@ -30,7 +31,9 @@ export async function allSurvey(sessionKey,url) {
 
 /**
  * Fonction pour récupérer les informations du formulaire que l'on souhaite
+ * @param {string} sessionKey - Cle API limesurvey
  * @param {number} surveyId - L'identifiant du questionnaire (SID)
+ * @param {string} url - URL de l'API RemoteControl 2 de LimeSurvey
  * @returns {Array} Liste des enquêtes avec leurs informations
  */
 export async function survey(sessionKey,surveyId,url) {
@@ -69,6 +72,7 @@ export async function survey(sessionKey,surveyId,url) {
 
 /**
  * Fonction pour activer un questionnaire
+ * @param {string} sessionKey - Cle API limesurvey
  * @param {number} surveyId - L'identifiant du questionnaire (SID)
  * @returns {boolean} Indique si l'activation a été effectuée avec succès
  */
@@ -95,5 +99,45 @@ export async function activateSurvey(sessionKey,surveyId,url) {
     } catch (error) {
         console.error('Erreur lors de la requête :', error.message);
         return false;
+    }
+}
+
+/**
+ * Récupère le statut d'un questionnaire LimeSurvey
+ * @param {string} sessionKey - Clé de session API LimeSurvey
+ * @param {number} surveyId - Identifiant du questionnaire (SID)
+ * @param {string} url - URL de l'API LimeSurvey
+ * @returns {Promise<string>} - Statut du questionnaire : "activé", "désactivé" ou "expiré"
+ */
+export async function getSurveyStatus(sessionKey, surveyId, url) {
+    try {
+        // Récupérer la date d'expiration
+        const expiresDate = await getExpiresDate(sessionKey, surveyId, url);
+
+        // Récupérer le statut d'activation
+        const response = await axios.post(url, {
+            jsonrpc: '2.0',
+            method: 'get_survey_properties',
+            params: [sessionKey, surveyId, ['active']],
+            id: 5,
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        const isActive = response.data.result.active === 'Y';
+        const today = new Date();
+
+        if (!isActive) {
+            return 'désactivé';
+        } else if (expiresDate && new Date(expiresDate) < today) {
+            return 'expiré';
+        } else {
+            return 'activé';
+        }
+    } catch (error) {
+        console.error('Erreur lors de la récupération du statut du questionnaire :', error.message);
+        throw error;
     }
 }

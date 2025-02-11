@@ -4,8 +4,10 @@ import {getParticipantsNoInvitation} from "./participants.js";
 
 /**
  * Envoi d'e-mail à tous les participants d'un questionnaire
+ * @param {string} sessionKey Cle API limesurvey
  * @param {number} surveyId - L'identifiant du questionnaire (SID)
- * @returns {boolean} Renvoie si la fonction a envoyé le mail
+ * @param {string} url URL de l'API RemoteControl 2 de LimeSurvey
+ * @returns {boolean} Indique si la fonction a envoyé le mail
  */
 export async function sendInvitation(sessionKey,surveyId,url) {
     try {
@@ -53,8 +55,10 @@ export async function sendInvitation(sessionKey,surveyId,url) {
 
 /**
  * Envoi d'e-mail aux participants d'un questionnaire qui n'en ont jamais reçu
+ * @param {string} sessionKey Cle API limesurvey
  * @param {number} surveyId - L'identifiant du questionnaire (SID)
- * @returns {boolean} Renvoie si la fonction a envoyé le mail
+ * @param {string} url URL de l'API RemoteControl 2 de LimeSurvey
+ * @returns {number} Renvoie le nombre d'invitation envoyées
  */
 export async function sendInvitationToPendingParticipants(sessionKey,surveyId,url) {
     try {

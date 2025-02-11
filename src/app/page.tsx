@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 interface Survey {
   sid: string;
   surveyls_title: string;
+  active: string;
   startdate: string | null;
   expires: string | null;
 }
@@ -77,19 +78,12 @@ export default function SurveyList() {
           action: "setStartDate",
         }),
       });
-
-      const data = await res.json();
-
-      if (data.success) {
-        console.log(`Date d'activation mise à jour pour le questionnaire ${surveyId}`);
-        setSurveys((prevSurveys) =>
-          prevSurveys.map((survey) =>
-            survey.sid === surveyId ? { ...survey, startdate: newStartDate } : survey
-          )
-        );
-      } else {
-        setError(data.error || "Erreur inconnue lors de la mise à jour");
-      }
+        
+      setSurveys((prevSurveys) =>
+        prevSurveys.map((survey) =>
+          survey.sid === surveyId ? { ...survey, startdate: newStartDate } : survey
+        )
+      );
     } catch (err) {
       setError("Erreur API lors de la requête");
       console.error("Erreur API :", err);
@@ -105,7 +99,7 @@ export default function SurveyList() {
     setError(null);
 
     try {
-      const res = await fetch("/api/route?action=setExpiresDate", {
+      const res = await fetch("/api/route", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -118,18 +112,22 @@ export default function SurveyList() {
       const data = await res.json();
 
       if (data.success) {
-        console.log(`Date d'expiration mise à jour pour le questionnaire ${surveyId}`);
         setSurveys((prevSurveys) =>
           prevSurveys.map((survey) =>
             survey.sid === surveyId ? { ...survey, expires: newExpiresDate } : survey
           )
         );
-      } else {
-        setError(data.error || "Erreur inconnue lors de la mise à jour");
+      setError(data.error || "Erreur inconnue lors de la mise à jour");
       }
+
     } catch (err) {
+      setSurveys((prevSurveys) => 
+        prevSurveys.map((survey) => 
+          survey.sid === surveyId ? { ...survey, expires: survey.expires } : survey
+        )
+      );
       setError("Erreur API lors de la requête");
-      console.error("Erreur API :", err);
+      console.error("Erreur API : ",err);
     } finally {
       setLoading(false);
     }
@@ -149,6 +147,7 @@ export default function SurveyList() {
             <tr>
               <th>ID</th>
               <th>Titre</th>
+              <th>Statut</th>
               <th>Date activation questionnaire</th>
               <th>Date expiration questionnaire</th>
               <th>Aujourd'hui ?</th>
@@ -159,6 +158,13 @@ export default function SurveyList() {
               <tr key={survey.sid}>
                 <td>{survey.sid}</td>
                 <td>{survey.surveyls_title}</td>
+                <td>
+                  {survey.active === "Y" ? (
+                    <span className="status-active">Activé</span>
+                  ) : (
+                    <span className="status-inactive">Désactivé</span>
+                  )}
+                </td>
                 <td>
                   <input
                     type="datetime-local"

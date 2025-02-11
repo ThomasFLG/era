@@ -1,6 +1,6 @@
 import axios from 'axios';
-import dotenv from 'dotenv';
 import * as LimeSurvey from '../utils/limesurvey/index.js';
+import dotenv from 'dotenv';
 dotenv.config(); // Charger les variables d'environnement en premier
 
 // Ensuite, exportation des variables
@@ -64,6 +64,11 @@ async function handleDailyInvitations() {
                     if (surveyInfo?.active !== 'Y') {
                         await LimeSurvey.activateSurvey(sessionKey,surveyId,url);
                     }
+
+                    // Générer les codes d'accès au formulaire
+
+                    const token = await LimeSurvey.setToken(sessionKey,surveyId,url);
+                    
 
                     // 6. Envoyer les invitations
                     const invitationsSent = await LimeSurvey.sendInvitationToPendingParticipants(sessionKey,surveyId,url);

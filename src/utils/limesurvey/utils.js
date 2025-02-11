@@ -2,6 +2,9 @@ import axios from 'axios';
 
 /**
  * Fonction pour récupérer la session_key de LimeSurvey
+ * @param {string} url - URL de l'API RemoteControl 2 de LimeSurvey
+ * @param {string} username - Login admin Limesurvey
+ * @param {string} password - Password admin limesurvey
  * @returns {string} La session_key si la requête réussit
  */
 export async function getSessionKey(url, username, password) {

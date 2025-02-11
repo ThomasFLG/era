@@ -34,6 +34,11 @@ export async function GET(req) {
             return Response.json({ emails }, { status: 200});
         }
 
+        if (action === "getSurveyStatus") {
+            const status = await LimeSurvey.getSurveyStatus(sessionKey,surveyId,url);
+            return Response.json({ status }, { status: 200});
+        }
+
     } catch (error) {
         console.error("Erreur dans l'API : ", error);
         return Response.json({ error: error.message || "Erreur inconnue" }, { status: 500 });
@@ -56,14 +61,14 @@ export async function POST(req) {
         }
 
         if (action === "setStartDate") {
-            const result = await LimeSurvey.setStartDate(sessionKey,surveyId, newStartDate,url);
+            const result = await LimeSurvey.setStartDate(sessionKey,surveyId,newStartDate,url);
             return result 
                 ? Response.json({ success: true }, { status: 200 })
                 : Response.json({ error: "Échec de la mise à jour" }, { status: 500 });
         }
 
         if (action === "setExpiresDate") {
-            const result = await LimeSurvey.setExpiresDate(sessionKey,surveyId, newStartDate,url);
+            const result = await LimeSurvey.setExpiresDate(sessionKey,surveyId, newExpiresDate,url);
             return result
                 ? Response.json({ success: true }, { status: 200 })
                 : Response.json({ error: "Échec de la mise à jour" }, { status: 500 });
