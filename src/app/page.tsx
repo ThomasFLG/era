@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+// 1. Interface et type -----------------------------------------------------------------
 interface Survey {
   sid: string;
   surveyls_title: string;
@@ -10,190 +11,207 @@ interface Survey {
   expires: string | null;
 }
 
+// 2. Fonctions utilitaires ------------------------------------------------------------
+const isToday = (dateStr: string | null): boolean => {
+  if (!dateStr) return false;
+  const today = new Date().toISOString().split("T")[0];
+  const surveyDate = new Date(dateStr).toISOString().split("T")[0];
+  return today === surveyDate;
+};
+
+// 3. Composant principal ---------------------------------------------------------------
 export default function SurveyList() {
+  // 3a. Etat du composant
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Fonction pour vérifier si la date correspond à aujourd'hui
-  const isToday = (dateStr: string | null): boolean => {
-    if (!dateStr) return false;
-
-    const today = new Date();
-    const todayString = today.toISOString().split("T")[0];
-    const surveyDate = new Date(dateStr);
-    const surveyDateString = surveyDate.toISOString().split("T")[0];
-
-    return todayString === surveyDateString;
-  };
-
-  // Chargement des données des questionnaires depuis l'API
+  // 3b. Effet de chargement initial
   useEffect(() => {
-    fetch("/api/route?action=allSurvey")
-      .then((res) => res.json())
-      .then((data) => {
-        console.log("Données API :", data);
-
-         if (Array.isArray(data.surveys)) {
+    const loadSurveys = async () => {
+      try {
+        const response = await fetch("/api/route?action=allSurvey");
+        const data = await response.json();
+        
+        if (Array.isArray(data.surveys)) {
           setSurveys(data.surveys);
-
-          /*** // Envoi d'invitation automatique si la date d'activation est aujourd'hui
-          data.surveys.forEach((survey: Survey) => {
-            if (isToday(survey.startdate)) {
-              fetch('/api/route', {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  action: "sendInvitation",
-                  surveyId: survey.sid
-                })
-              })
-                .then(res => res.json())
-                .then(data => {
-                  if (data.success) {
-                    console.log(`Invitation envoyée pour le questionnaire ${survey.sid}`);
-                  }
-                })
-                .catch(console.error);
-            }
-          }); ***/
         }
-      })
-      .catch(console.error);
+      } catch (error) {
+        console.error("Erreur de chargement:", error);
+      }
+    };
+
+    loadSurveys();
   }, []);
 
-  // Fonction pour mettre à jour la date d'activation
-  const setStartDate = async (surveyId: string, newStartDate: string) => {
-    if (!newStartDate) return;
-    setLoading(true);
-    setError(null);
-
-    try {
-      const res = await fetch("/api/route", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          surveyId,
-          newStartDate: newStartDate.replace("T", " ") + ":00",
-          action: "setStartDate",
-        }),
-      });
-        
-      setSurveys((prevSurveys) =>
-        prevSurveys.map((survey) =>
-          survey.sid === surveyId ? { ...survey, startdate: newStartDate } : survey
-        )
-      );
-    } catch (err) {
-      setError("Erreur API lors de la requête");
-      console.error("Erreur API :", err);
-    } finally {
-      setLoading(false);
-    }
+  // 3c. Gestion des dates
+  const formatDate = (dateStr: string): string => {
+    const d = new Date(dateStr);
+    const pad = (num: number): string => String(num).padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
   };
 
-  // Fonction pour mettre à jour la date d'expiration
-  const setExpiresDate = async (surveyId: string, newExpiresDate: string) => {
-    if (!newExpiresDate) return;
+  const handleDateUpdate = async (
+    action: "setStartDate" | "setExpiresDate",
+    surveyId: string,
+    newDate: string
+  ) => {
+    if (!newDate) return;
+    
     setLoading(true);
     setError(null);
 
     try {
-      const res = await fetch("/api/route", {
+      const formattedDate = formatDate(newDate);
+      const bodyKey = action === "setStartDate" ? "newStartDate" : "newExpiresDate";
+      const response = await fetch("/api/route", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          action,
           surveyId,
-          newExpiresDate: newExpiresDate.replace("T", " ") + ":00",
-          action: "setExpiresDate",
+          [bodyKey]: formattedDate,
         }),
       });
 
-      const data = await res.json();
+      const data = await response.json();
 
       if (data.success) {
-        setSurveys((prevSurveys) =>
-          prevSurveys.map((survey) =>
-            survey.sid === surveyId ? { ...survey, expires: newExpiresDate } : survey
-          )
-        );
-      setError(data.error || "Erreur inconnue lors de la mise à jour");
+        setSurveys(prev => prev.map(survey => 
+          survey.sid === surveyId 
+            ? { ...survey, [action === "setStartDate" ? "startdate" : "expires"]: newDate } 
+            : survey
+        ));
+      } else {
+        setError(data.error || "Erreur lors de la mise à jour");
       }
-
-    } catch (err) {
-      setSurveys((prevSurveys) => 
-        prevSurveys.map((survey) => 
-          survey.sid === surveyId ? { ...survey, expires: survey.expires } : survey
-        )
-      );
-      setError("Erreur API lors de la requête");
-      console.error("Erreur API : ",err);
+    } catch (error) {
+      setError("Erreur de connexion");
+      console.error("Erreur API:", error);
     } finally {
       setLoading(false);
     }
   };
 
+  // 3d. Rendu
   return (
-    <div>
+    <div className="survey-container">
       <h1>Définir les dates d'activation et d'expiration</h1>
-      <p>Sur cette page, on peut définir pour chaque questionnaire LimeSurvey IFRASS des dates d'activation et d'expiration.</p>
-      <p>Lorsque la date d'activation d'un formulaire correspond à la date d'aujourd'hui, cela envoie automatiquement un mail d'invitation à tous les participants qui n'avaient pas encore reçu de mail d'invitation.</p>
-      <p>Si aucune réponse n'est reçue après une semaine, un rappel automatique est envoyé.</p>
-      <p>La date d'expiration clôture automatiquement l'accès au formulaire LimeSurvey.</p>
+      
+      <div className="description">
+        <p>Sur cette page, on peut définir pour chaque questionnaire LimeSurvey IFRASS...</p>
+        <p>Lorsque la date d'activation d'un formulaire correspond à la date d'aujourd'hui, cela envoie automatiquement un mail d'invitation à tous les participants qui n'avaient pas encore reçu de mail d'invitation.</p>
+        <p>Si aucune réponse n'est reçue après une semaine, un rappel automatique est envoyé.</p>
+        <p>La date d'expiration clôture automatiquement l'accès au formulaire LimeSurvey.</p>
+      </div>
+
+      {error && <div className="error-message">{error}</div>}
 
       {surveys.length > 0 ? (
-        <table className="table-style">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Titre</th>
-              <th>Statut</th>
-              <th>Date activation questionnaire</th>
-              <th>Date expiration questionnaire</th>
-              <th>Aujourd'hui ?</th>
-            </tr>
-          </thead>
-          <tbody>
-            {surveys.map((survey) => (
-              <tr key={survey.sid}>
-                <td>{survey.sid}</td>
-                <td>{survey.surveyls_title}</td>
-                <td>
-                  {survey.active === "Y" ? (
-                    <span className="status-active">Activé</span>
-                  ) : (
-                    <span className="status-inactive">Désactivé</span>
-                  )}
-                </td>
-                <td>
-                  <input
-                    type="datetime-local"
-                    value={survey.startdate ?? ""}
-                    onChange={(e) => setStartDate(survey.sid, e.target.value)}
-                    disabled={loading}
-                  />
-                </td>
-                <td>
-                  <input
-                    type="datetime-local"
-                    value={survey.expires ?? ""}
-                    onChange={(e) => setExpiresDate(survey.sid, e.target.value)}
-                  />
-                </td>
-                <td>
-                  {isToday(survey.startdate) ? (
-                    <span className="status-active">Oui</span>
-                  ) : (
-                    <span className="status-inactive">Non</span>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <SurveyTable 
+          surveys={surveys}
+          loading={loading}
+          onDateChange={handleDateUpdate}
+        />
       ) : (
-        <p>Chargement des questionnaires ... </p>
+        <p>Chargement des questionnaires...</p>
       )}
     </div>
   );
 }
+
+// 4. Sous-composant Tableau -----------------------------------------------------------
+const SurveyTable = ({ 
+  surveys,
+  loading,
+  onDateChange
+}: { 
+  surveys: Survey[];
+  loading: boolean;
+  onDateChange: (action: "setStartDate" | "setExpiresDate", surveyId: string, date: string) => void;
+}) => (
+  <table className="table-style">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Titre</th>
+        <th>Statut</th>
+        <th>Date activation</th>
+        <th>Date expiration</th>
+        <th>Aujourd'hui ?</th>
+      </tr>
+    </thead>
+    <tbody>
+      {surveys.map((survey) => (
+        <SurveyRow
+          key={survey.sid}
+          survey={survey}
+          loading={loading}
+          onDateChange={onDateChange}
+        />
+      ))}
+    </tbody>
+  </table>
+);
+
+// 5. Sous-composant Ligne -------------------------------------------------------------
+const SurveyRow = ({
+  survey,
+  loading,
+  onDateChange
+}: {
+  survey: Survey;
+  loading: boolean;
+  onDateChange: (action: "setStartDate" | "setExpiresDate", surveyId: string, date: string) => void;
+}) => (
+  <tr>
+    <td>{survey.sid}</td>
+    <td>{survey.surveyls_title}</td>
+    <td>
+      <StatusBadge active={survey.active} />
+    </td>
+    <td>
+      <DateInput
+        value={survey.startdate}
+        onChange={(date) => onDateChange("setStartDate", survey.sid, date)}
+        disabled={loading}
+      />
+    </td>
+    <td>
+      <DateInput
+        value={survey.expires}
+        onChange={(date) => onDateChange("setExpiresDate", survey.sid, date)}
+        disabled={loading}
+      />
+    </td>
+    <td>
+      <TodayIndicator date={survey.startdate} />
+    </td>
+  </tr>
+);
+
+// 6. Sous-composants atomiques --------------------------------------------------------
+const StatusBadge = ({ active }: { active: string }) => (
+  active === "Y" 
+    ? <span className="status-active">Activé</span>
+    : <span className="status-inactive">Désactivé</span>
+);
+
+const DateInput = ({ value, onChange, disabled }: { 
+  value: string | null;
+  onChange: (date: string) => void;
+  disabled: boolean;
+}) => (
+  <input
+    type="datetime-local"
+    value={value ?? ""}
+    onChange={(e) => onChange(e.target.value)}
+    disabled={disabled}
+  />
+);
+
+const TodayIndicator = ({ date }: { date: string | null }) => (
+  isToday(date)
+    ? <span className="status-active">Oui</span>
+    : <span className="status-inactive">Non</span>
+);
