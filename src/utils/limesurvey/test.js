@@ -9,7 +9,7 @@ const sessionKey = await LimeSurvey.getSessionKey(url,username,password);
 
 let surveyId = 318675;
 
-testEmail();
+testSurvey();
 
 async function testParticipants () {
     console.log("__TEST_PARTICIPANTS__")
@@ -43,6 +43,8 @@ async function testSurvey() {
     console.log(`Le questionnaire ${surveyId} a t'il été activé ?`,actif);
     const survey = await LimeSurvey.survey(sessionKey,surveyId,url);
     console.log(`Voici les informations de mon questionnaire ${surveyId}`,survey);
+    const copy = await LimeSurvey.copySurvey(url,sessionKey,surveyId,"Copie ERA_TEST");
+    console.log("Le questionnaire a t'il est copié ? ",copy);
 }
 
 async function testDate() {

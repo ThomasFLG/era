@@ -63,6 +63,10 @@ export async function POST(req) {
       case "sendInvitation":
         await LimeSurvey.sendInvitation(currentSessionKey, surveyId, url);
         return Response.json({ success: true });
+      
+      case "copySurvey":
+        await LimeSurvey.copySurvey(url,currentSessionKey, surveyId, newSurveyName);
+        return Response.json({ success: true });
 
       default:
         return Response.json({ error: "Action non supportée" }, { status: 400 });
