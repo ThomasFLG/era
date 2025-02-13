@@ -112,3 +112,43 @@ export async function sendInvitationToPendingParticipants(sessionKey,surveyId,ur
         return 0;
     }
 }
+
+/**
+ * Envoie un email de rappel aux participants qui n'ont pas répondu aux invitations.
+ * ATTENTION : Il y a un délai minimum imposé entre une invitation et le rappel
+ *
+ * @param {string} url - URL de l'API RemoteControl2 de LimeSurvey.
+ * @param {string} sessionKey - Clé de session obtenue via get_session_key.
+ * @param {number} surveyId - Identifiant du questionnaire.
+ * @param {number} [minDays=0] - Nombre de jours minimum entre rappels.
+ * @param {number} [maxReminders=0] - Nombre maximum de rappels déjà envoyés.
+ * @param {Promise<Array>} listNonResponders - Tableau des participants qui n'ont pas répondu.
+ * @returns {Promise<Object|null>} - Résultat de l'appel API ou null en cas d'erreur.
+ */
+export async function sendReminderToNonResponders(url, sessionKey, surveyId, minDays, maxReminders, listNonResponders) {
+    try {
+        const tokedString = listNonResponders.map(particpant => particpant.token);
+
+        if (tokedString.length === 0) {
+            console.log(`Aucun rappel n'est necessaire pour le questionnaire ${surveyId}`)
+            return { status: "No participants to remind" };
+        }
+
+        const response = await axios.post(url,{
+            jsonrpc: '2.0',
+            method: 'remind_participants',
+            params: [sessionKey, surveyId, minDays, maxReminders, tokedString, true],
+            id: 9,
+        },
+        {
+            headers: {'Content-Type': 'application/json'}
+        });
+
+        console.log("Rappels envoyés aux tokens : ",tokedString);
+        return response.data.result;
+    }
+    catch (error){
+        console.error("Erreur lors de l'envoi des rappels : ",error);
+        return null;
+    }
+}

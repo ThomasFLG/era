@@ -3,8 +3,8 @@ import axios from 'axios';
 /**
  * Obtenir les informations des participants d'un questionnaire
  * @param {string} sessionKey - La clé de session LimeSurvey
- * @param {string} url - L'URL de l'API LimeSurvey
  * @param {number} surveyId - L'identifiant du questionnaire (SID)
+ * @param {string} url - L'URL de l'API LimeSurvey
  * @returns {string[]} Un tableau de participants
 */
 export async function getParticipants(sessionKey,surveyId,url) {
@@ -84,14 +84,17 @@ function generateToken(length) {
  * @param {string} sessionKey - Clé de session LimeSurvey.
  * @param {number} surveyId - Identifiant de l'enquête.
  * @param {string} url - URL de l'API LimeSurvey.
+ * @returns {number} Nombre de tokens générés
  */
 export async function setToken(sessionKey, surveyId, url) {
+    let nbreToken = 0;
+
     try {
         const participantsWithoutToken = await getParticipantsWithoutToken(sessionKey, surveyId, url);
 
         if (participantsWithoutToken.length === 0) {
             console.log("Tous les participants ont déjà un token.");
-            return;
+            return 0;
         }
 
         for (const participant of participantsWithoutToken) {
@@ -113,12 +116,16 @@ export async function setToken(sessionKey, surveyId, url) {
 
             if (response.data.result) {
                 console.log("Token mis à jour avec succès pour le participant", participant.tid);
+                nbreToken++;
             } else {
                 console.error('Erreur lors de la mise à jour :', response.data.error);
             }
         }
+
+        return nbreToken;
     } catch (error) {
         console.error('Erreur lors de la requête :', error.message);
+        return 0;
     }
 }
 
@@ -158,4 +165,47 @@ async function getParticipantsWithoutToken(sessionKey, surveyId, url) {
         console.error('Erreur lors de la requête :', error.message);
         return [];
     }
+}
+
+/**
+ * Récupère la liste des participants qui n'ont pas complété le questionnaire.
+ *
+ * L'API retourne pour chaque participant un objet comportant un champ "completed"
+ * (correspondant à "Complété ?"). Selon la configuration et les versions,
+ * ce champ peut contenir une date (lorsque le participant a terminé) ou être vide,
+ * voire contenir "N" pour indiquer qu'il n'a pas complété.
+ *
+ * @param {string} url - URL de l'API RemoteControl2 de LimeSurvey.
+ * @param {string} sessionKey - Clé de session obtenue via get_session_key.
+ * @param {number} surveyID - Identifiant du questionnaire.
+ * @returns {Promise<Array>} Tableau des participants non répondants.
+ */
+export async function getNonResponders(url, sessionKey, surveyID) {
+  try {
+    const response = await axios.post(
+      url,
+      {
+        jsonrpc: '2.0',
+        method: 'list_participants',
+        params: [sessionKey, surveyID, 0, 100, false, ["token", "completed", "sent", "remindersent", "participant_info", "validfrom", "validuntil", "usesleft"]],
+        id: 1,
+      },
+      {
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
+
+    if (response.data.result && Array.isArray(response.data.result)) {
+        const nonResponders = response.data.result.filter(participant => {
+            return !participant.completed || participant.completed === "" || participant.completed === "N";
+          });
+      return nonResponders;
+    } else {
+      console.error("Aucun résultat ou format inattendu.");
+      return [];
+    }
+  } catch (error) {
+    console.error("Erreur lors de la récupération des participants :", error);
+    return [];
+  }
 }

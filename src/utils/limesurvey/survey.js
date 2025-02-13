@@ -74,6 +74,7 @@ export async function survey(sessionKey,surveyId,url) {
  * Fonction pour activer un questionnaire
  * @param {string} sessionKey - Cle API limesurvey
  * @param {number} surveyId - L'identifiant du questionnaire (SID)
+ * @param {string} url - URL de l'API RemoteControl 2 de LimeSurvey
  * @returns {boolean} Indique si l'activation a été effectuée avec succès
  */
 export async function activateSurvey(sessionKey,surveyId,url) {

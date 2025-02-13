@@ -1,38 +1,47 @@
 import test from "node:test";
 import * as LimeSurvey from "./index.js";
 import dotenv from 'dotenv';
-dotenv.config;
+dotenv.config();
 const url = process.env.LIME_URL;
 const username = process.env.LIME_USERNAME;
 const password = process.env.LIME_PASSWORD;
 const sessionKey = await LimeSurvey.getSessionKey(url,username,password);
 
-testDate();
+let surveyId = 318675;
+
+testEmail();
 
 async function testParticipants () {
     console.log("__TEST_PARTICIPANTS__")
-    const surveyId = 468261;
-    const listeParticipants = await LimeSurvey.getParticipants(url,surveyId);
+    const listeParticipants = await LimeSurvey.getParticipants(sessionKey,surveyId,url);
     console.log(`Les participants du formulaire ${surveyId} sont : `,listeParticipants);
-    const listeParticipantsNoInvitation = await LimeSurvey.getParticipantsNoInvites(url,surveyId);
+    const listeParticipantsNoInvitation = await LimeSurvey.getParticipantsNoInvitation(sessionKey,surveyId,url);
     console.log("Parmis eux, ceux qui n'ont pas eu de mail d'invitation sont : ",listeParticipantsNoInvitation);
+    const nbreToken = await LimeSurvey.setToken(sessionKey,surveyId,url);
+    console.log("Nombre de participants dont le token a été généré : ",nbreToken);
+    const nonResponders =  await LimeSurvey.getNonResponders(url,sessionKey,surveyId);
+    console.log("Participants qui n'ont pas répondu au questionnaire : ",nonResponders);
 }
 
 async function testEmail() {
     console.log("__TEST_EMAIL__")
-    const surveyId = 468261;
     console.log("Ma clé de session est : ",sessionKey);
-    const email = await LimeSurvey.sendInvitation(url,surveyId);
-    console.log("L'Email est-il envoyé ? ",email);
+    const email = await LimeSurvey.sendInvitationToPendingParticipants(sessionKey,surveyId,url);
+    console.log("Nombre d'invitations envoyées à ceux qui n'en ont pas eu ",email);
+    const listNonResponders =  await LimeSurvey.getNonResponders(url,sessionKey,surveyId);
+    console.log("Participants qui n'ont pas répondu au questionnaire : ",listNonResponders);
+    const reminder = await LimeSurvey.sendReminderToNonResponders(url,sessionKey,surveyId,0,2, listNonResponders);
+    console.log("Les rappels ont ils été envoyés pour les personnes qui n'ont pas répondu aux invitations ? ",reminder);
 }
 
-async function testSurvey () {
+async function testSurvey() {
     console.log("__TEST_SURVEY__")
     console.log("Ma clé de session est : ",sessionKey);
-    const surveys = await LimeSurvey.allSurvey(url, sessionKey);
+    const surveys = await LimeSurvey.allSurvey(sessionKey,url);
     console.log("Liste des questionnaires : ",surveys);
-    const surveyId = 468261;
-    const survey = await LimeSurvey.survey(url,surveyId);
+    const actif = await LimeSurvey.activateSurvey(sessionKey,surveyId,url);
+    console.log(`Le questionnaire ${surveyId} a t'il été activé ?`,actif);
+    const survey = await LimeSurvey.survey(sessionKey,surveyId,url);
     console.log(`Voici les informations de mon questionnaire ${surveyId}`,survey);
 }
 
@@ -40,30 +49,26 @@ async function testDate() {
     console.log("__TEST_DATE__")
     console.log("Ma clé de session est : ",sessionKey);
 
-    const newSessionKey = await LimeSurvey.isCorrect(url,username,password);
-    console.log("Clé valide : ",newSessionKey);
-
-    const surveyId = 468261;
-    const activation = await LimeSurvey.activateSurvey(url,surveyId);
+    const activation = await LimeSurvey.activateSurvey(sessionKey,surveyId,url);
     console.log("Le formulaire est-il activé ? ",activation);
     // Tester la récupération de la date de début (startdate)
-    const startDate = await LimeSurvey.getStartDate(surveyId);
+    const startDate = await LimeSurvey.getStartDate(sessionKey,surveyId,url);
     console.log(`La date de début du questionnaire ${surveyId} est :`, startDate);
 
     // Tester la récupération de la date d'expiration (expires)
-    const expires = await LimeSurvey.getExpiresDate(surveyId);
+    const expires = await LimeSurvey.getExpiresDate(sessionKey,surveyId,url);
     console.log(`La date d'expiration du questionnaire ${surveyId} est :`, expires);
 
     // Tester la mise à jour de la date de début
-    const newStartDate = generateRandomDate();
+    const newDate = generateRandomDate();
     console.log(`Mise à jour de la date de début du questionnaire ${surveyId} de ${startDate} vers ${newStartDate}...`);
-    const setStartResult = await LimeSurvey.setStartDate(sessionKey, surveyId, newStartDate);
+    const setStartResult = await LimeSurvey.setStartDate(sessionKey, surveyId, newDate, url);
     console.log("Mise à jour de la date de début réussie ? :", setStartResult);
 
     // Tester la mise à jour de la date d'expiration (expires)
     const newExpiresDate = generateRandomDate(); // On peut aussi générer une date aléatoire pour expiration
     console.log(`Mise à jour de la date d'expiration du questionnaire ${surveyId} de ${expires} vers ${newExpiresDate}...`);
-    const updateExpiresResult = await LimeSurvey.setExpiresDate(surveyId,newExpiresDate);
+    const updateExpiresResult = await LimeSurvey.setExpiresDate(sessionKey,surveyId,newExpiresDate,url);
     console.log("Mise à jour de la date d'expiration réussie ? :", updateExpiresResult);
 }
 
