@@ -21,31 +21,35 @@ const isToday = (dateStr: string | null): boolean => {
 
 // 3. Composant principal ---------------------------------------------------------------
 export default function SurveyList() {
-  // 3a. Etat du composant
+  // Etat existants
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [editingSurveyId, setEditingSurveyId] = useState<string | null>(null);
 
-  // 3b. Effet de chargement initial
-  useEffect(() => {
-    const loadSurveys = async () => {
-      try {
-        const response = await fetch("/api/route?action=allSurvey");
-        const data = await response.json();
-        
-        if (Array.isArray(data.surveys)) {
-          setSurveys(data.surveys);
-        }
-      } catch (error) {
-        console.error("Erreur de chargement:", error);
-      }
-    };
+  // Nouveaux états pour la création d'un questionnaire par copie
+  const [showNewSurveyForm, setShowNewSurveyForm] = useState(false);
+  const [newSurveySourceId, setNewSurveySourceId] = useState("");
+  const [newSurveyName, setNewSurveyName] = useState("");
+  const [newSurveyLoading, setNewSurveyLoading] = useState(false);
 
+  // Fonction de chargement des questionnaires
+  const loadSurveys = async () => {
+    try {
+      const response = await fetch("/api/route?action=allSurvey");
+      const data = await response.json();
+      if (Array.isArray(data.surveys)) {
+        setSurveys(data.surveys);
+      }
+    } catch (error) {
+      console.error("Erreur de chargement:", error);
+    }
+  };
+
+  useEffect(() => {
     loadSurveys();
   }, []);
 
-  // 3c. Gestion des dates
   const formatDate = (dateStr: string): string => {
     const d = new Date(dateStr);
     const pad = (num: number): string => String(num).padStart(2, "0");
@@ -58,7 +62,7 @@ export default function SurveyList() {
     newDate: string
   ) => {
     if (!newDate) return;
-    
+
     setLoading(true);
     setError(null);
 
@@ -78,12 +82,12 @@ export default function SurveyList() {
       const data = await response.json();
 
       if (data.success) {
-        setSurveys(prev => prev.map(survey => 
-          survey.sid === surveyId 
-            ? { ...survey, [action === "setStartDate" ? "startdate" : "expires"]: newDate } 
+        setSurveys(prev => prev.map(survey =>
+          survey.sid === surveyId
+            ? { ...survey, [action === "setStartDate" ? "startdate" : "expires"]: newDate }
             : survey
         ));
-        setEditingSurveyId(null); // Réinitialiser l'édition après modification
+        setEditingSurveyId(null);
       } else {
         setError(data.error || "Erreur lors de la mise à jour");
       }
@@ -95,17 +99,51 @@ export default function SurveyList() {
     }
   };
 
-  // 3d. Rendu
+  // Fonction de création d'un nouveau questionnaire par copie
+  const handleCreateNewSurvey = async () => {
+    if (!newSurveySourceId || !newSurveyName) {
+      alert("Veuillez renseigner l'ID du formulaire à copier et le nouveau nom.");
+      return;
+    }
+    setNewSurveyLoading(true);
+    try {
+      const response = await fetch("/api/route", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "copySurvey",
+          surveyId: newSurveySourceId,
+          newSurveyName: newSurveyName,
+        }),
+      });
+      const data = await response.json();
+      if (data.success) {
+        alert("Nouveau questionnaire créé avec succès");
+        // Optionnel : recharger la liste des questionnaires
+        loadSurveys();
+      } else {
+        alert("Erreur lors de la création: " + (data.error || "Erreur inconnue"));
+      }
+    } catch (error) {
+      console.error("Erreur lors de la création du questionnaire", error);
+      alert("Erreur lors de la création du questionnaire");
+    } finally {
+      setNewSurveyLoading(false);
+      setShowNewSurveyForm(false);
+      setNewSurveySourceId("");
+      setNewSurveyName("");
+    }
+  };
+
   return (
     <div className="survey-container">
-      
       <h1>Bienvenue sur ERA ! L'interface de gestion des questionnaires LimeSurvey de l'école IFRASS</h1>
 
       <div className="description">
         <p>
           Cette plateforme vous permet de gérer facilement les dates d'activation et d'expiration des questionnaires, ainsi que de suivre leur statut en temps réel. Voici les principales fonctionnalités disponibles :
         </p>
-        
+
         <h2>Gestion des dates :</h2>
         <ul>
           <li>Définissez ou modifiez les dates d'activation et d'expiration pour chaque questionnaire.</li>
@@ -133,6 +171,44 @@ export default function SurveyList() {
         <p>
           Cette interface a été conçue pour automatiser la gestion des questionnaires tout en garantissant une utilisation sécurisée et efficace. Pour toute question ou assistance, n'hésitez pas à contacter l'équipe technique.
         </p>
+      </div>
+
+      {/* Section Nouveau questionnaire */}
+      <div className="new-survey-section">
+        {!showNewSurveyForm && (
+          <button onClick={() => setShowNewSurveyForm(true)} disabled={loading || newSurveyLoading} className="button-style">
+            Nouveau questionnaire
+          </button>
+        )}
+        {showNewSurveyForm && (
+          <div className="new-survey-form">
+            <h2>Créer un nouveau questionnaire</h2>
+            <div>
+              <label>Formulaire à copier (ID) :</label>
+              <input
+                type="text"
+                value={newSurveySourceId}
+                onChange={(e) => setNewSurveySourceId(e.target.value)}
+                placeholder="ID du formulaire source"
+              />
+            </div>
+            <div>
+              <label>Nouveau nom :</label>
+              <input
+                type="text"
+                value={newSurveyName}
+                onChange={(e) => setNewSurveyName(e.target.value)}
+                placeholder="Nom du nouveau questionnaire"
+              />
+            </div>
+            <button onClick={handleCreateNewSurvey} disabled={newSurveyLoading}>
+              Créer questionnaire
+            </button>
+            <button onClick={() => setShowNewSurveyForm(false)} disabled={newSurveyLoading}>
+              Annuler
+            </button>
+          </div>
+        )}
       </div>
 
       {error && <div className="error-message">{error}</div>}
@@ -223,7 +299,7 @@ const SurveyRow = ({
       <td>
         {!isEditing && (
           <button onClick={handleEditConfirmation} disabled={loading}>
-            ✏️ Modifier
+            🔧 Modifier
           </button>
         )}
         {isEditing && (

@@ -167,3 +167,17 @@ table th, table td {
   border: 1px solid #ddd;
 }
 
+.button-style {
+  background-color: #0e9a2c;
+  color: white;
+  font-size: 18px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.button-style:hover {
+  background-color: #0c7f24;
+}

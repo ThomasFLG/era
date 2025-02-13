@@ -46,7 +46,7 @@ export async function GET(req) {
 export async function POST(req) {
   try {
     const body = await req.json().catch(() => { throw new Error("Body JSON invalide") });
-    const { action, surveyId, newStartDate, newExpiresDate } = body;
+    const { action, surveyId, newStartDate, newExpiresDate, newSurveyName } = body;
     if (!action || !surveyId) throw new Error("Paramètres manquants");
 
     const currentSessionKey = await LimeSurvey.getSessionKey(url,username,password);
