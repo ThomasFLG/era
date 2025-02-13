@@ -147,7 +147,7 @@ export async function getSurveyStatus(sessionKey, surveyId, url) {
  * Fonction pour copier un formulaire LimeSurvey en se basant sur un formulaire existant
  *
  * @param {string} url - URL de l'API RemoteControl 2 de LimeSurvey
- * @param {string} sessionKey - Session key obtenue via getSessionKey
+ * @param {string} sessionKey - Clé de session API LimeSurvey
  * @param {number} originalSurveyId - ID du formulaire source à copier
  * @param {string} newSurveyName - Nom du nouveau formulaire
  * @returns {Promise<Object>} En cas de succès: objet contenant { newsid: nouveauID }. En cas d'erreur: objet d'erreur
@@ -178,4 +178,45 @@ export async function copySurvey(url, sessionKey, originalSurveyId, newSurveyNam
         console.error("Erreur lors de la configuration de la requête : ", error.message);
         return null;
     }
+}
+
+/**
+ * Supprimer un questionnaire.
+ *
+ * @param {string} url - URL de l'API RemoteControl 2 de LimeSurvey
+ * @param {string} sessionKey - Clé de session API LimeSurvey
+ * @param {number} surveyId - L'ID du questionnaire à supprimer
+ * @returns {Promise<Object>} En cas de succès: réponse de l'API. En cas d'erreur: objet d'erreur.
+ */
+export async function deleteSurvey(url, sessionKey, surveyId) {
+  try {
+    const response = await axios.post(url, {
+      jsonrpc: '2.0',
+      method: 'delete_survey',
+      params: [sessionKey, surveyId],
+      id: 1,
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+
+    if (response.data && response.data.result) {
+      // Retourne le résultat de l'opération (par exemple un booléen ou un message)
+      return response.data.result;
+    } else if (response.data && response.data.error) {
+      console.error("Erreur de l'API : ", response.data.error);
+      return response.data.error;
+    }
+  } catch (error) {
+    if (error.response) {
+      console.error("Erreur HTTP : ", error.response.status);
+      console.error("Détails de l'erreur : ", error.response.data);
+    } else if (error.request) {
+      console.error("Aucune réponse reçue : ", error.request);
+    } else {
+      console.error("Erreur lors de la configuration de la requête : ", error.message);
+    }
+    return null;
+  }
 }
