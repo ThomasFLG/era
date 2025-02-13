@@ -25,6 +25,7 @@ export default function SurveyList() {
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [editingSurveyId, setEditingSurveyId] = useState<string | null>(null);
 
   // 3b. Effet de chargement initial
   useEffect(() => {
@@ -82,6 +83,7 @@ export default function SurveyList() {
             ? { ...survey, [action === "setStartDate" ? "startdate" : "expires"]: newDate } 
             : survey
         ));
+        setEditingSurveyId(null); // Réinitialiser l'édition après modification
       } else {
         setError(data.error || "Erreur lors de la mise à jour");
       }
@@ -96,13 +98,41 @@ export default function SurveyList() {
   // 3d. Rendu
   return (
     <div className="survey-container">
-      <h1>Définir les dates d'activation et d'expiration</h1>
       
+      <h1>Bienvenue sur ERA ! L'interface de gestion des questionnaires LimeSurvey de l'école IFRASS</h1>
+
       <div className="description">
-        <p>Sur cette page, on peut définir pour chaque questionnaire LimeSurvey IFRASS...</p>
-        <p>Lorsque la date d'activation d'un formulaire correspond à la date d'aujourd'hui, cela envoie automatiquement un mail d'invitation à tous les participants qui n'avaient pas encore reçu de mail d'invitation.</p>
-        <p>Si aucune réponse n'est reçue après une semaine, un rappel automatique est envoyé.</p>
-        <p>La date d'expiration clôture automatiquement l'accès au formulaire LimeSurvey.</p>
+        <p>
+          Cette plateforme vous permet de gérer facilement les dates d'activation et d'expiration des questionnaires, ainsi que de suivre leur statut en temps réel. Voici les principales fonctionnalités disponibles :
+        </p>
+        
+        <h2>Gestion des dates :</h2>
+        <ul>
+          <li>Définissez ou modifiez les dates d'activation et d'expiration pour chaque questionnaire.</li>
+          <li>Un système de confirmation et de déverrouillage par ligne évite les modifications accidentelles.</li>
+        </ul>
+
+        <h2>Envoi automatique d'e-mails :</h2>
+        <ul>
+          <li>Lorsque la date d'activation correspond à la date du jour, un e-mail d'invitation est automatiquement envoyé à tous les participants n'ayant pas encore reçu de mail.</li>
+          <li>Si aucune réponse n'est reçue après une semaine, un rappel automatique est envoyé.</li>
+        </ul>
+
+        <h2>Visualisation en temps réel :</h2>
+        <ul>
+          <li>Consultez le statut de chaque questionnaire (activé/désactivé).</li>
+          <li>Identifiez rapidement les questionnaires dont la date d'activation correspond à aujourd'hui.</li>
+        </ul>
+
+        <h2>Sécurité et contrôle :</h2>
+        <ul>
+          <li>Modification des dates protégée par une confirmation explicite.</li>
+          <li>Un seul questionnaire modifiable à la fois pour éviter les erreurs.</li>
+        </ul>
+
+        <p>
+          Cette interface a été conçue pour automatiser la gestion des questionnaires tout en garantissant une utilisation sécurisée et efficace. Pour toute question ou assistance, n'hésitez pas à contacter l'équipe technique.
+        </p>
       </div>
 
       {error && <div className="error-message">{error}</div>}
@@ -112,6 +142,8 @@ export default function SurveyList() {
           surveys={surveys}
           loading={loading}
           onDateChange={handleDateUpdate}
+          editingSurveyId={editingSurveyId}
+          setEditingSurveyId={setEditingSurveyId}
         />
       ) : (
         <p>Chargement des questionnaires...</p>
@@ -124,15 +156,20 @@ export default function SurveyList() {
 const SurveyTable = ({ 
   surveys,
   loading,
-  onDateChange
+  onDateChange,
+  editingSurveyId,
+  setEditingSurveyId
 }: { 
   surveys: Survey[];
   loading: boolean;
   onDateChange: (action: "setStartDate" | "setExpiresDate", surveyId: string, date: string) => void;
+  editingSurveyId: string | null;
+  setEditingSurveyId: (id: string | null) => void;
 }) => (
   <table className="table-style">
     <thead>
       <tr>
+        <th>Action</th>
         <th>ID</th>
         <th>Titre</th>
         <th>Statut</th>
@@ -148,6 +185,8 @@ const SurveyTable = ({
           survey={survey}
           loading={loading}
           onDateChange={onDateChange}
+          isEditing={editingSurveyId === survey.sid}
+          setEditingSurveyId={setEditingSurveyId}
         />
       ))}
     </tbody>
@@ -158,37 +197,66 @@ const SurveyTable = ({
 const SurveyRow = ({
   survey,
   loading,
-  onDateChange
+  onDateChange,
+  isEditing,
+  setEditingSurveyId
 }: {
   survey: Survey;
   loading: boolean;
   onDateChange: (action: "setStartDate" | "setExpiresDate", surveyId: string, date: string) => void;
-}) => (
-  <tr>
-    <td>{survey.sid}</td>
-    <td>{survey.surveyls_title}</td>
-    <td>
-      <StatusBadge active={survey.active} />
-    </td>
-    <td>
-      <DateInput
-        value={survey.startdate}
-        onChange={(date) => onDateChange("setStartDate", survey.sid, date)}
-        disabled={loading}
-      />
-    </td>
-    <td>
-      <DateInput
-        value={survey.expires}
-        onChange={(date) => onDateChange("setExpiresDate", survey.sid, date)}
-        disabled={loading}
-      />
-    </td>
-    <td>
-      <TodayIndicator date={survey.startdate} />
-    </td>
-  </tr>
-);
+  isEditing: boolean;
+  setEditingSurveyId: (id: string | null) => void;
+}) => {
+  const handleEditConfirmation = () => {
+    const wantsToEdit = window.confirm(
+      "Êtes-vous sûr de vouloir modifier les dates de ce questionnaire ?\n" +
+      "Toute modification sera appliquée immédiatement."
+    );
+    
+    if (wantsToEdit) {
+      setEditingSurveyId(survey.sid);
+    }
+  };
+
+  return (
+    <tr>
+      <td>
+        {!isEditing && (
+          <button onClick={handleEditConfirmation} disabled={loading}>
+            ✏️ Modifier
+          </button>
+        )}
+        {isEditing && (
+          <button onClick={() => setEditingSurveyId(null)} disabled={loading}>
+            🔒 Verrouiller
+          </button>
+        )}
+      </td>
+      <td>{survey.sid}</td>
+      <td>{survey.surveyls_title}</td>
+      <td>
+        <StatusBadge active={survey.active} />
+      </td>
+      <td>
+        <DateInput
+          value={survey.startdate}
+          onChange={(date) => onDateChange("setStartDate", survey.sid, date)}
+          disabled={!isEditing || loading}
+        />
+      </td>
+      <td>
+        <DateInput
+          value={survey.expires}
+          onChange={(date) => onDateChange("setExpiresDate", survey.sid, date)}
+          disabled={!isEditing || loading}
+        />
+      </td>
+      <td>
+        <TodayIndicator date={survey.startdate} />
+      </td>
+    </tr>
+  );
+};
 
 // 6. Sous-composants atomiques --------------------------------------------------------
 const StatusBadge = ({ active }: { active: string }) => (

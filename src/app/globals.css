@@ -126,3 +126,44 @@ p {
   color: red;
   font-weight: bold;
 }
+
+.description {
+  margin-bottom: 30px;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.description h2 {
+  font-size: 1.3rem;
+  margin-top: 20px;
+  color: #0e9a2c;
+}
+
+.description ul {
+  margin-left: 20px;
+  margin-bottom: 10px;
+}
+
+.description p {
+  margin: 10px 0;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 10px;
+  border: 1px solid #f5c6cb;
+  border-radius: 5px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+table th, table td {
+  padding: 10px;
+  border: 1px solid #ddd;
+}
+

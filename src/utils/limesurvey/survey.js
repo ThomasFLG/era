@@ -142,3 +142,40 @@ export async function getSurveyStatus(sessionKey, surveyId, url) {
         throw error;
     }
 }
+
+/**
+ * Fonction pour copier un formulaire LimeSurvey en se basant sur un formulaire existant
+ *
+ * @param {string} url - URL de l'API RemoteControl 2 de LimeSurvey
+ * @param {string} sessionKey - Session key obtenue via getSessionKey
+ * @param {number} originalSurveyId - ID du formulaire source à copier
+ * @param {string} newSurveyName - Nom du nouveau formulaire
+ * @returns {Promise<Object>} En cas de succès: objet contenant { newsid: nouveauID }. En cas d'erreur: objet d'erreur
+ */
+export async function copySurvey(url, sessionKey, originalSurveyId, newSurveyName) {
+    try {
+        // Appel de la méthode copy_survey de l'API
+        const response = await axios.post(url, {
+            jsonrpc: '2.0',
+            method: 'copy_survey',
+            params: [sessionKey, originalSurveyId, newSurveyName],
+            id: 1,
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        // Traitement de la réponse
+        if (response.data && response.data.result) {
+            // Retourne le nouvel ID du formulaire dans response.data.result
+            return response.data.result;
+        } else if (response.data && response.data.error) {
+            console.error("Erreur de l'API : ", response.data.error);
+            return response.data.error;
+        }
+    } catch (error) {
+        console.error("Erreur lors de la configuration de la requête : ", error.message);
+        return null;
+    }
+}

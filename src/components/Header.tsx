@@ -9,7 +9,7 @@ export default function Header() {
               <a href="/">Définir date activation/expiration</a>
             </div>
             <div className="nav-item">
-              <a href="http://localhost/limesurvey/index.php?r=admin/authentication/sa/login">Connexion admin Limesurvey</a>
+              <a href="https://enquetes.ifrass.fr/index.php?r=admin/authentication/sa/login">Connexion admin Limesurvey</a>
             </div>
           </div>
         </nav>
